@@ -6,6 +6,10 @@
     <title>ALACA Eczane ve Not Yönetim Portalı</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK (Compat Sürümleri - HTML İçi Kullanım İçin) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between relative">
 
@@ -96,7 +100,7 @@
             <!-- Mesajların Listelendiği Alan -->
             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3 text-sm">
                 <div class="bg-slate-200 text-slate-700 text-xs text-center py-1.5 px-3 rounded-lg self-center max-w-xs">
-                    Sohbet odasına hoş geldiniz! Sohbeti temizlemek için <b>/clear</b> yazabilirsiniz.
+                    Ortak sohbet odasına hoş geldiniz! Temizlemek için <b>/clear</b> yazabilirsiniz.
                 </div>
             </div>
 
@@ -113,8 +117,25 @@
         </div>
     </div>
 
-    <!-- Sohbet Mantığı (JavaScript) -->
+    <!-- Firebase ve Sohbet Mantığı -->
     <script>
+        // Sizin Firebase Konfigürasyonunuz
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYQZEYws-2H_wNMLjJ49xw0FpvOOWX3k4",
+            authDomain: "alacaeczanesi.firebaseapp.com",
+            databaseURL: "https://alacaeczanesi-default-rtdb.firebaseio.com",
+            projectId: "alacaeczanesi",
+            storageBucket: "alacaeczanesi.firebasestorage.app",
+            messagingSenderId: "225106853473",
+            appId: "1:225106853473:web:46b0addd19cb09e59e7420",
+            measurementId: "G-KQS93JMS4P"
+        };
+
+        // Firebase başlatma
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const chatRef = db.ref('messages');
+
         function toggleChat() {
             const chatBox = document.getElementById('chat-box');
             chatBox.classList.toggle('hidden');
@@ -150,42 +171,60 @@
         function sendMessage() {
             const userInput = document.getElementById('chat-input');
             const userNameInput = document.getElementById('chat-user');
-            const messagesContainer = document.getElementById('chat-messages');
 
             const text = userInput.value.trim();
             const name = userNameInput.value.trim() || "Misafir";
 
             if (text === "") return;
 
-            // /clear komutu kontrolü
+            // /clear komutu ile veritabanındaki tüm mesajları sıfırlama
             if (text === "/clear") {
+                chatRef.remove();
+                userInput.value = "";
+                return;
+            }
+
+            // Firebase veritabanına yeni mesaj gönder
+            chatRef.push({
+                name: name,
+                text: text,
+                timestamp: Date.now()
+            });
+
+            userInput.value = "";
+        }
+
+        // Veritabanındaki mesajları dinle ve ekranda göster
+        chatRef.on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            const messagesContainer = document.getElementById('chat-messages');
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('flex', 'flex-col', 'max-w-[85%]', 'self-start');
+            
+            messageDiv.innerHTML = `
+                <span class="text-[11px] font-bold text-emerald-700 ml-1 mb-0.5">${escapeHtml(data.name)}</span>
+                <div class="bg-emerald-50 border border-emerald-100 text-slate-700 px-3 py-2 rounded-xl rounded-tl-sm text-sm break-words shadow-sm">
+                    ${escapeHtml(data.text)}
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            playNotificationSound();
+        });
+
+        // Sohbet temizlendiğinde ekranı güncelle
+        chatRef.on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                const messagesContainer = document.getElementById('chat-messages');
                 messagesContainer.innerHTML = `
                     <div class="bg-slate-200 text-slate-700 text-xs text-center py-1.5 px-3 rounded-lg self-center max-w-xs">
                         Sohbet geçmişi temizlendi.
                     </div>
                 `;
-                userInput.value = "";
-                return;
             }
-
-            // Yeni mesaj balonu oluşturma
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('flex', 'flex-col', 'max-w-[85%]', 'self-start');
-            
-            messageDiv.innerHTML = `
-                <span class="text-[11px] font-bold text-emerald-700 ml-1 mb-0.5">${escapeHtml(name)}</span>
-                <div class="bg-emerald-50 border border-emerald-100 text-slate-700 px-3 py-2 rounded-xl rounded-tl-sm text-sm break-words shadow-sm">
-                    ${escapeHtml(text)}
-                </div>
-            `;
-
-            messagesContainer.appendChild(messageDiv);
-            
-            // Girdiyi temizle, en alta kaydır ve bildirim sesi çal
-            userInput.value = "";
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            playNotificationSound();
-        }
+        });
 
         function checkEnter(event) {
             if (event.key === 'Enter') {
