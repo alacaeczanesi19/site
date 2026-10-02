@@ -57,6 +57,9 @@
                 <button onclick="sekmeDegistir('itriyat')" id="btnItriyat" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition shadow">
                     <i class="fa-solid fa-box-open"></i> İtriyat Paneli
                 </button>
+                <button onclick="sekmeDegistir('bakiye')" id="btnBakiye" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow">
+                    <i class="fa-solid fa-wallet"></i> Bakiye & Gelecek Ay Notları
+                </button>
                 <button onclick="sekmeDegistir('gecmis')" id="btnGecmis" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow">
                     <i class="fa-solid fa-calendar-days"></i> Geçmiş Takvimi
                 </button>
@@ -220,6 +223,37 @@
                 </div>
             </div>
 
+            <!-- BAKİYE & GELECEK AY NOTLARI ALANI -->
+            <div id="alanBakiye" class="hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 border-b pb-4">
+                    <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-wallet text-indigo-600"></i> Önümüzdeki Ay Bakiye ve Planlama Notları 
+                        <span id="bakiyeSayisi" class="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-1 rounded-full font-bold">0 Kayıt</span>
+                    </h2>
+                    <button onclick="bakiyeNotuEkleModalAc()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow">
+                        <i class="fa-solid fa-plus"></i> Yeni Bakiye Notu Ekle
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="p-3 rounded-l-lg">Hedef / Ay</th>
+                                <th class="p-3">Depo / Ürün Adı</th>
+                                <th class="p-3">Bakiye Miktarı</th>
+                                <th class="p-3">Planlama Notu</th>
+                                <th class="p-3 rounded-r-lg text-center">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bakiyeTablosu" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+                <div id="bosBakiyeMesaj" class="hidden text-center py-12 text-slate-400">
+                    <i class="fa-solid fa-file-invoice-dollar text-4xl mb-3"></i>
+                    <p>Önümüzdeki aya ait kayıtlı bakiye notu bulunmuyor.</p>
+                </div>
+            </div>
+
             <!-- GEÇMİŞ TAKVİM SİPARİŞLERİ ALANI -->
             <div id="alanGecmis" class="hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 border-b pb-4">
@@ -305,12 +339,64 @@
         </div>
     </div>
 
+    <!-- YENİ BAKİYE NOTU EKLEME MODALI -->
+    <div id="bakiyeModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2">
+                <i class="fa-solid fa-wallet text-indigo-600"></i> Önümüzdeki Ay İçin Bakiye Notu Ekle
+            </h3>
+            <form id="bakiyeForm" onsubmit="bakiyeNotuKaydet(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Hedef Ay / Dönem</label>
+                    <input type="text" id="bakiyeAyDonem" required placeholder="Örn: Kasım 2026 / Gelecek Ay" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">İlgili Ecza Deposu</label>
+                    <select id="bakiyeDepo" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="Hedef Ecza Deposu">Hedef Ecza Deposu</option>
+                        <option value="Nevzat Ecza Deposu">Nevzat Ecza Deposu</option>
+                        <option value="Selçuk Ecza Deposu">Selçuk Ecza Deposu</option>
+                        <option value="Genel / Diğer">Genel / Diğer</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Ürün Adı (Opsiyonel)</label>
+                    <input type="text" id="bakiyeUrunAdi" placeholder="Örn: Belirli bir ürün veya genel bakiye..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Bakiye Miktarı / Tutar</label>
+                        <input type="text" id="bakiyeMiktari" placeholder="Örn: 5 Kutu / 1.500 TL" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Birim</label>
+                        <select id="bakiyeBirimi" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                            <option value="Kutu">Kutu</option>
+                            <option value="Adet">Adet</option>
+                            <option value="Tutar (TL)">Tutar (TL)</option>
+                            <option value="Kampanya">Kampanya</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Planlama ve Takip Notu</label>
+                    <textarea id="bakiyeNotuDetay" rows="2" placeholder="Örn: Gelecek ayın ilk haftası düşülecek..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="bakiyeNotuKapat()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">İptal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg">Notu Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let eczaneVeritabani = [];
         let siparisler = [];
         let yokListesi = [];
         let itriyatListesi = [];
         let gecmisSiparisler = [];
+        let bakiyeNotlari = [];
         
         let aktifSekme = 'aktif';
         let aktifDuzenlenenDocId = null;
@@ -350,6 +436,12 @@
                 gecmisSiparisler = [];
                 snapshot.forEach((doc) => { gecmisSiparisler.push({ id: doc.id, ...doc.data() }); });
                 gecmisiGoster();
+            });
+
+            fb.onSnapshot(fb.query(fb.collection(fb.db, "bakiyeNotlari")), (snapshot) => {
+                bakiyeNotlari = [];
+                snapshot.forEach((doc) => { bakiyeNotlari.push({ id: doc.id, ...doc.data() }); });
+                bakiyeListesiniGoster();
             });
 
             fb.getDocs(fb.collection(fb.db, "veritabani")).then((snapshot) => {
@@ -399,7 +491,7 @@
                 let mevcut = itriyatListesi.find(i => i.adi.toLowerCase() === urunAdiVal.toLowerCase());
                 if (mevcut) {
                     let cevap = confirm(`"${urunAdiVal}" zaten itriyat listesinde var. Mevcut miktara (${mevcut.miktari}) eklemek istiyor musunuz?\n(İptal'e basarsanız eklenmeyecektir.)`);
-                    if (!cevap) return; // İptal seçildiyse ekleme yapma
+                    if (!cevap) return; 
                     let yeniMiktar = parseFloat(mevcut.miktari) + miktarVal;
                     await fb.updateDoc(fb.doc(fb.db, "itriyatListesi", mevcut.id), { miktari: String(yeniMiktar) });
                 } else {
@@ -412,11 +504,10 @@
                 return;
             }
 
-            // Aktif siparişler kontrolü
             let mevcutSiparis = siparisler.find(i => i.adi.toLowerCase() === urunAdiVal.toLowerCase());
             if (mevcutSiparis) {
                 let cevap = confirm(`"${urunAdiVal}" zaten aktif sipariş listesinde var. Mevcut miktara (${mevcutSiparis.miktari}) eklemek istiyor musunuz?\n(İptal'e basarsanız eklenmeyecektir.)`);
-                if (!cevap) return; // İptal seçildiyse ekleme yapma
+                if (!cevap) return; 
                 let yeniMiktar = parseFloat(mevcutSiparis.miktari) + miktarVal;
                 await fb.updateDoc(fb.doc(fb.db, "siparisler", mevcutSiparis.id), { miktari: String(yeniMiktar) });
             } else {
@@ -432,6 +523,33 @@
         async function sil(id) { await fb.deleteDoc(fb.doc(fb.db, "siparisler", id)); }
         async function itriyatSil(id) { await fb.deleteDoc(fb.doc(fb.db, "itriyatListesi", id)); }
         async function yokSil(id) { await fb.deleteDoc(fb.doc(fb.db, "yokListesi", id)); }
+        async function bakiyeSil(id) { await fb.deleteDoc(fb.doc(fb.db, "bakiyeNotlari", id)); }
+
+        async function bakiyeNotuEkleModalAc() {
+            document.getElementById('bakiyeForm').reset();
+            document.getElementById('bakiyeModal').classList.remove('hidden');
+        }
+        function bakiyeNotuKapat() {
+            document.getElementById('bakiyeModal').classList.add('hidden');
+        }
+
+        async function bakiyeNotuKaydet(event) {
+            event.preventDefault();
+            if(!fb) return;
+            const ayDonem = document.getElementById('bakiyeAyDonem').value.trim();
+            const depo = document.getElementById('bakiyeDepo').value;
+            const urunAdi = document.getElementById('bakiyeUrunAdi').value.trim() || 'Genel Bakiye';
+            const miktar = document.getElementById('bakiyeMiktari').value.trim();
+            const birim = document.getElementById('bakiyeBirimi').value;
+            const notu = document.getElementById('bakiyeNotuDetay').value.trim();
+            const simdi = new Date().toLocaleString('tr-TR');
+
+            await fb.addDoc(fb.collection(fb.db, "bakiyeNotlari"), {
+                ayDonem, depo, urunAdi, miktar, birim, notu, eklenmeTarihi: simdi
+            });
+
+            bakiyeNotuKapat();
+        }
 
         async function durumuDegistir(item) {
             await fb.updateDoc(fb.doc(fb.db, "siparisler", item.id), { tamamlandi: !item.tamamlandi });
@@ -481,12 +599,18 @@
 
         function sekmeDegistir(sekme) {
             aktifSekme = sekme;
-            ['aktif', 'yok', 'itriyat', 'gecmis'].forEach(s => {
-                document.getElementById('alan' + s.charAt(0).toUpperCase() + s.slice(1)).classList.add('hidden');
-                document.getElementById('btn' + s.charAt(0).toUpperCase() + s.slice(1)).className = "bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow";
+            ['aktif', 'yok', 'itriyat', 'bakiye', 'gecmis'].forEach(s => {
+                const el = document.getElementById('alan' + s.charAt(0).toUpperCase() + s.slice(1));
+                if(el) el.classList.add('hidden');
+                const btn = document.getElementById('btn' + s.charAt(0).toUpperCase() + s.slice(1));
+                if(btn) btn.className = s === 'bakiye' ? "bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow" : "bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow";
             });
             document.getElementById('alan' + sekme.charAt(0).toUpperCase() + sekme.slice(1)).classList.remove('hidden');
-            document.getElementById('btn' + sekme.charAt(0).toUpperCase() + sekme.slice(1)).className = "bg-white text-emerald-800 px-3 py-2 rounded-lg text-sm font-semibold transition shadow";
+            
+            const aktifBtn = document.getElementById('btn' + sekme.charAt(0).toUpperCase() + sekme.slice(1));
+            if(aktifBtn) {
+                aktifBtn.className = "bg-white text-" + (sekme === 'bakiye' ? "indigo" : "emerald") + "-800 px-3 py-2 rounded-lg text-sm font-semibold transition shadow";
+            }
             
             if(sekme === 'gecmis') {
                 gecmisiGoster();
@@ -556,6 +680,29 @@
             });
         }
 
+        function bakiyeListesiniGoster() {
+            const tablo = document.getElementById('bakiyeTablosu');
+            const bosMesaj = document.getElementById('bosBakiyeMesaj');
+            document.getElementById('bakiyeSayisi').innerText = bakiyeNotlari.length + " Kayıt";
+            tablo.innerHTML = '';
+            if (bakiyeNotlari.length === 0) { bosMesaj.classList.remove('hidden'); return; }
+            bosMesaj.classList.add('hidden');
+            bakiyeNotlari.forEach(item => {
+                tablo.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-semibold text-indigo-700">${item.ayDonem}</td>
+                        <td class="p-3">
+                            <span class="inline-block px-2 py-0.5 rounded text-xs font-bold ${depoRozetRengi(item.depo)} mb-1">${item.depo}</span>
+                            <div class="font-medium text-slate-800">${item.urunAdi}</div>
+                        </td>
+                        <td class="p-3 font-bold text-slate-700">${item.miktar} ${item.birim}</td>
+                        <td class="p-3 text-xs text-slate-600">${item.notu || '-'}</td>
+                        <td class="p-3 text-center"><button onclick="bakiyeSil('${item.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
         // --- GERÇEK GÖRSEL TAKVİM SİSTEMİ ---
         function gecmisiGoster() {
             const bosMesaj = document.getElementById('bosGecmisMesaj');
@@ -568,7 +715,6 @@
             }
             bosMesaj.classList.add('hidden');
 
-            // Kayıtlı günleri haritalandır (GG.AA.YYYY formatında)
             const siparisGunleriMap = {};
             gecmisSiparisler.forEach(item => {
                 let tarihGun = (item.eklenmeTarihi || '').split(' ')[0];
@@ -586,18 +732,15 @@
             const grid = document.getElementById('takvimGunleriGrid');
             grid.innerHTML = '';
 
-            // Ayın ilk gününün haftadaki karşılığı (Pazartesi bazlı: 0-6)
             let ilkGunIndex = new Date(yil, ay, 1).getDay();
-            ilkGunIndex = ilkGunIndex === 0 ? 6 : ilkGunIndex - 1; // Pazartesi başlangıçlı
+            ilkGunIndex = ilkGunIndex === 0 ? 6 : ilkGunIndex - 1;
 
             const ayinSonGunu = new Date(yil, ay + 1, 0).getDate();
 
-            // Boşluklar
             for (let i = 0; i < ilkGunIndex; i++) {
                 grid.innerHTML += `<div></div>`;
             }
 
-            // Günleri doldur
             let ilkGunStr = null;
             for (let gun = 1; gun <= ayinSonGunu; gun++) {
                 let gStr = String(gun).padStart(2, '0');
@@ -646,7 +789,7 @@
 
         function takvimAyDegistir(yon) {
             takvimAktifTarih.setMonth(takvimAktifTarih.getMonth() + yon);
-            secilenTakvimGunu = null; // Ay değişince seçimi sıfırla ki yeni aydan dolu gün seçilsin
+            secilenTakvimGunu = null;
             gecmisiGoster();
         }
 
