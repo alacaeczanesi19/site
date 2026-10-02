@@ -91,8 +91,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Miktar *</label>
-                        <input type="number" id="urunMiktari" min="1" value="1" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Miktar / MF *</label>
+                        <input type="text" id="urunMiktari" value="1" required placeholder="Örn: 50+10" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Birim</label>
@@ -149,7 +149,7 @@
                             <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
                                 <th class="p-3 rounded-l-lg">Durum</th>
                                 <th class="p-3">Depo (Tıkla Seç) / Ürün</th>
-                                <th class="p-3">Miktar / Düzenle</th>
+                                <th class="p-3">Miktar / MF / Düzenle</th>
                                 <th class="p-3">Kategori</th>
                                 <th class="p-3">Not</th>
                                 <th class="p-3 rounded-r-lg text-center">İşlem</th>
@@ -171,14 +171,19 @@
                         <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Yok Listesi / Temin Edilemeyenler 
                         <span id="yokSayisi" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">0 Kayıt</span>
                     </h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="yoktanSecilenleriArsivle()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow" title="İşaretlenenleri Depo Seçerek Arşive Gönder">
+                            <i class="fa-solid fa-box-archive"></i> İşaretlenenleri Arşive Gönder
+                        </button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
-                                <th class="p-3 rounded-l-lg">Eklenme Zamanı</th>
-                                <th class="p-3">Depo / Ürün</th>
-                                <th class="p-3">Miktar</th>
+                                <th class="p-3 rounded-l-lg">Seç / Tarih</th>
+                                <th class="p-3">Depo (Tıkla Seç) / Ürün</th>
+                                <th class="p-3">Miktar / MF</th>
                                 <th class="p-3">Not</th>
                                 <th class="p-3 rounded-r-lg text-center">İşlem</th>
                             </tr>
@@ -208,7 +213,7 @@
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
                                 <th class="p-3 rounded-l-lg">Ürün Adı & Barkod</th>
-                                <th class="p-3">Miktar / Düzenle</th>
+                                <th class="p-3">Miktar / MF / Düzenle</th>
                                 <th class="p-3">Kategori</th>
                                 <th class="p-3">Not</th>
                                 <th class="p-3 rounded-r-lg text-center">İşlem</th>
@@ -240,7 +245,7 @@
                             <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
                                 <th class="p-3 rounded-l-lg">Hedef / Ay</th>
                                 <th class="p-3">Depo / Ürün Adı</th>
-                                <th class="p-3">Bakiye Miktarı</th>
+                                <th class="p-3">Bakiye Miktarı / MF</th>
                                 <th class="p-3">Planlama Notu</th>
                                 <th class="p-3 rounded-r-lg text-center">İşlem</th>
                             </tr>
@@ -260,11 +265,14 @@
                     <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2">
                         <i class="fa-solid fa-calendar-days text-emerald-600"></i> Sipariş Geçmişi Takvimi
                     </h2>
-                    <div id="takvimBaslikBilgi" class="text-sm font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg"></div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <input type="text" id="gecmisAramaInput" onkeyup="gecmisUrunAra()" placeholder="Geçmişte ürün ara..." class="px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-56">
+                    </div>
                 </div>
+                <div id="takvimBaslikBilgi" class="text-sm font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg mb-4"></div>
                 
                 <!-- Görsel Takvim Grid Yapısı -->
-                <div class="bg-slate-50 border rounded-xl p-4 mb-6 shadow-inner">
+                <div id="takvimKapsayiciDiv" class="bg-slate-50 border rounded-xl p-4 mb-6 shadow-inner">
                     <div class="flex justify-between items-center mb-3">
                         <button onclick="takvimAyDegistir(-1)" class="px-3 py-1 bg-white border rounded-lg text-sm font-semibold hover:bg-slate-100 shadow-sm"><i class="fa-solid fa-chevron-left mr-1"></i> Önceki Ay</button>
                         <h3 id="takvimAyYilBaslik" class="font-bold text-slate-700 text-base"></h3>
@@ -298,6 +306,82 @@
         </div>
     </div>
 
+    <!-- AKTİF ÜRÜN KAPSAMLI DÜZENLEME MODALI -->
+    <div id="aktifDuzenleModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2">
+                <i class="fa-solid fa-pen-to-square text-emerald-600"></i> Aktif Ürün Bilgilerini Düzenle
+            </h3>
+            <input type="hidden" id="duzenleAktifId">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Ecza Deposu</label>
+                    <select id="duzenleAktifDepo" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <option value="Hedef Ecza Deposu">Hedef Ecza Deposu</option>
+                        <option value="Nevzat Ecza Deposu">Nevzat Ecza Deposu</option>
+                        <option value="Selçuk Ecza Deposu">Selçuk Ecza Deposu</option>
+                        <option value="Seçilmedi">Seçilmedi</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Ürün / İlaç Adı</label>
+                    <input type="text" id="duzenleAktifAdi" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Barkod Numarası</label>
+                    <input type="text" id="duzenleAktifBarkod" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Miktar / MF</label>
+                        <input type="text" id="duzenleAktifMiktar" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Birim</label>
+                        <select id="duzenleAktifBirim" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="Kutu">Kutu</option>
+                            <option value="Adet">Adet</option>
+                            <option value="Şişe">Şişe</option>
+                            <option value="Tüp">Tüp</option>
+                            <option value="Koli">Koli</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Kategori / Grup</label>
+                    <select id="duzenleAktifKategori" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <option value="İlaç (Reçeteli/Reçetesiz)">İlaç (Reçeteli/Reçetesiz)</option>
+                        <option value="İlaç Dışı / Dermokozmetik">İlaç Dışı / Dermokozmetik</option>
+                        <option value="Bebek & Anne Ürünleri">Bebek & Anne Ürünleri</option>
+                        <option value="Tıbbi Sarf / Yara Bakım">Tıbbi Sarf / Yara Bakım</option>
+                        <option value="Vitrin / Destek Ürünleri">Vitrin / Destek Ürünleri</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Özel Not</label>
+                    <input type="text" id="duzenleAktifNot" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="aktifDuzenleKapat()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">İptal</button>
+                <button onclick="aktifDuzenleKaydet()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg">Değişiklikleri Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- YOK LİSTESİ İÇİN DEPO SEÇİM MODALI -->
+    <div id="yokDepoModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 text-center">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Hangi Depo İçin Arşive Gönderilsin?</h3>
+            <div class="space-y-3">
+                <button onclick="yokDepoSecimiAyarla('Hedef Ecza Deposu')" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-800 font-semibold py-3 px-4 rounded-lg border border-blue-200">Hedef Ecza Deposu</button>
+                <button onclick="yokDepoSecimiAyarla('Nevzat Ecza Deposu')" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold py-3 px-4 rounded-lg border border-amber-200">Nevzat Ecza Deposu</button>
+                <button onclick="yokDepoSecimiAyarla('Selçuk Ecza Deposu')" class="w-full bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold py-3 px-4 rounded-lg border border-purple-200">Selçuk Ecza Deposu</button>
+            </div>
+            <button onclick="yokDepoModalKapat()" class="mt-5 text-xs text-slate-400">İptal</button>
+        </div>
+    </div>
+
     <!-- GEÇMİŞ ÜRÜN DEPO VE MİKTAR DÜZENLEME MODALI -->
     <div id="gecmisDuzenleModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
@@ -317,8 +401,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Miktar</label>
-                        <input type="number" id="duzenleMiktar" min="1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Miktar / MF</label>
+                        <input type="text" id="duzenleMiktar" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Birim</label>
@@ -365,8 +449,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Bakiye Miktarı / Tutar</label>
-                        <input type="text" id="bakiyeMiktari" placeholder="Örn: 5 Kutu / 1.500 TL" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Bakiye Miktarı / MF</label>
+                        <input type="text" id="bakiyeMiktari" placeholder="Örn: 50+10 / 1.500 TL" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Birim</label>
@@ -400,6 +484,7 @@
         
         let aktifSekme = 'aktif';
         let aktifDuzenlenenDocId = null;
+        let yokAktifDuzenlenenDocId = null;
         let fb = null;
 
         // Takvim için aktif yıl ve ay takibi
@@ -480,7 +565,7 @@
             if(!fb) return;
             const barkodVal = document.getElementById('barkodInput').value.trim();
             const urunAdiVal = document.getElementById('urunAdi').value.trim();
-            const miktarVal = parseFloat(document.getElementById('urunMiktari').value) || 1;
+            const miktarVal = document.getElementById('urunMiktari').value.trim();
             const birimVal = document.getElementById('urunBirimi').value;
             const kategoriVal = document.getElementById('urunKategorisi').value;
             const notVal = document.getElementById('urunNotu').value.trim();
@@ -490,13 +575,12 @@
             if (aktifSekme === 'itriyat') {
                 let mevcut = itriyatListesi.find(i => i.adi.toLowerCase() === urunAdiVal.toLowerCase());
                 if (mevcut) {
-                    let cevap = confirm(`"${urunAdiVal}" zaten itriyat listesinde var. Mevcut miktara (${mevcut.miktari}) eklemek istiyor musunuz?\n(İptal'e basarsanız eklenmeyecektir.)`);
+                    let cevap = confirm(`"${urunAdiVal}" zaten itriyat listesinde var. Yeni girilen miktar/MF (${miktarVal}) ile güncellensin mi?\n(İptal'e basarsanız eklenmeyecektir.)`);
                     if (!cevap) return; 
-                    let yeniMiktar = parseFloat(mevcut.miktari) + miktarVal;
-                    await fb.updateDoc(fb.doc(fb.db, "itriyatListesi", mevcut.id), { miktari: String(yeniMiktar) });
+                    await fb.updateDoc(fb.doc(fb.db, "itriyatListesi", mevcut.id), { miktari: miktarVal });
                 } else {
                     await fb.addDoc(fb.collection(fb.db, "itriyatListesi"), {
-                        docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: String(miktarVal), birimi: birimVal, kategorisi: kategoriVal, notu: notVal, eklenmeTarihi: simdi
+                        docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: miktarVal, birimi: birimVal, kategorisi: kategoriVal, notu: notVal, eklenmeTarihi: simdi
                     });
                 }
                 document.getElementById('siparisForm').reset();
@@ -506,13 +590,12 @@
 
             let mevcutSiparis = siparisler.find(i => i.adi.toLowerCase() === urunAdiVal.toLowerCase());
             if (mevcutSiparis) {
-                let cevap = confirm(`"${urunAdiVal}" zaten aktif sipariş listesinde var. Mevcut miktara (${mevcutSiparis.miktari}) eklemek istiyor musunuz?\n(İptal'e basarsanız eklenmeyecektir.)`);
+                let cevap = confirm(`"${urunAdiVal}" zaten aktif sipariş listesinde var. Yeni miktar/MF (${miktarVal}) ile güncellensin mi?\n(İptal'e basarsanız eklenmeyecektir.)`);
                 if (!cevap) return; 
-                let yeniMiktar = parseFloat(mevcutSiparis.miktari) + miktarVal;
-                await fb.updateDoc(fb.doc(fb.db, "siparisler", mevcutSiparis.id), { miktari: String(yeniMiktar) });
+                await fb.updateDoc(fb.doc(fb.db, "siparisler", mevcutSiparis.id), { miktari: miktarVal });
             } else {
                 await fb.addDoc(fb.collection(fb.db, "siparisler"), {
-                    docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: String(miktarVal), birimi: birimVal, kategorisi: kategoriVal, depo: "Seçilmedi", notu: notVal, eklenmeTarihi: simdi, tamamlandi: false
+                    docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: miktarVal, birimi: birimVal, kategorisi: kategoriVal, depo: "Seçilmedi", notu: notVal, eklenmeTarihi: simdi, tamamlandi: false
                 });
             }
 
@@ -555,11 +638,48 @@
             await fb.updateDoc(fb.doc(fb.db, "siparisler", item.id), { tamamlandi: !item.tamamlandi });
         }
 
-        async function miktarDuzenleModu(item) {
-            const yeniMiktar = prompt("Yeni miktarı girin:", item.miktari);
-            if (yeniMiktar !== null && yeniMiktar.trim() !== "") {
-                await fb.updateDoc(fb.doc(fb.db, "siparisler", item.id), { miktari: yeniMiktar.trim() });
+        async function yokDurumuDegistir(item) {
+            await fb.updateDoc(fb.doc(fb.db, "yokListesi", item.id), { tamamlandi: !item.tamamlandi });
+        }
+
+        // --- AKTİF ÜRÜN KAPSAMLI DÜZENLEME ---
+        function aktifUrunDuzenleModalAc(item) {
+            document.getElementById('duzenleAktifId').value = item.id;
+            document.getElementById('duzenleAktifDepo').value = item.depo || 'Seçilmedi';
+            document.getElementById('duzenleAktifAdi').value = item.adi || '';
+            document.getElementById('duzenleAktifBarkod').value = item.barkod || '';
+            document.getElementById('duzenleAktifMiktar').value = item.miktari || '1';
+            document.getElementById('duzenleAktifBirim').value = item.birimi || 'Kutu';
+            document.getElementById('duzenleAktifKategori').value = item.kategorisi || 'İlaç (Reçeteli/Reçetesiz)';
+            document.getElementById('duzenleAktifNot').value = item.notu || '';
+            document.getElementById('aktifDuzenleModal').classList.remove('hidden');
+        }
+
+        function aktifDuzenleKapat() {
+            document.getElementById('aktifDuzenleModal').classList.add('hidden');
+        }
+
+        async function aktifDuzenleKaydet() {
+            if(!fb) return;
+            const id = document.getElementById('duzenleAktifId').value;
+            const depo = document.getElementById('duzenleAktifDepo').value;
+            const adi = document.getElementById('duzenleAktifAdi').value.trim();
+            const barkod = document.getElementById('duzenleAktifBarkod').value.trim();
+            const miktari = document.getElementById('duzenleAktifMiktar').value.trim();
+            const birimi = document.getElementById('duzenleAktifBirim').value;
+            const kategorisi = document.getElementById('duzenleAktifKategori').value;
+            const notu = document.getElementById('duzenleAktifNot').value.trim();
+
+            if (!adi || !miktari) {
+                alert("Ürün adı ve miktar alanları boş bırakılamaz!");
+                return;
             }
+
+            await fb.updateDoc(fb.doc(fb.db, "siparisler", id), {
+                depo, adi, barkod: barkod || '-', miktari, birimi, kategorisi, notu
+            });
+
+            aktifDuzenleKapat();
         }
 
         function depoDuzenleModu(id) {
@@ -575,13 +695,54 @@
             depoModalKapat();
         }
 
+        function yokDepoDuzenleModu(id) {
+            yokAktifDuzenlenenDocId = id;
+            document.getElementById('yokDepoModal').classList.remove('hidden');
+        }
+        function yokDepoModalKapat() { document.getElementById('yokDepoModal').classList.add('hidden'); yokAktifDuzenlenenDocId = null; }
+
+        async function yokDepoSecimiAyarla(depoAdi) {
+            if (yokAktifDuzenlenenDocId !== null) {
+                await fb.updateDoc(fb.doc(fb.db, "yokListesi", yokAktifDuzenlenenDocId), { depo: depoAdi });
+            }
+            yokDepoModalKapat();
+        }
+
+        async function yoktanSecilenleriArsivle() {
+            const tamamlananlar = yokListesi.filter(item => item.tamamlandi);
+            if(tamamlananlar.length === 0) { alert("Önce yok listesinden ürün işaretleyin!"); return; }
+            for (let item of tamamlananlar) {
+                if (!item.depo || item.depo === 'Seçilmedi') {
+                    alert(`"${item.adi}" için depo seçilmemiş. Lütfen önce depo belirleyin.`);
+                    return;
+                }
+                await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
+                let { id, tamamlandi, ...data } = item;
+                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
+            }
+            alert("İşaretlenen yok listesi ürünleri arşive gönderildi.");
+        }
+
+        async function yokTekliArsivle(item) {
+            if (!item.depo || item.depo === 'Seçilmedi') {
+                alert("Lütfen önce üzerine tıklayarak ürüne bir depo atayın!");
+                yokDepoDuzenleModu(item.id);
+                return;
+            }
+            if(confirm(`"${item.adi}" (${item.depo}) geçmiş arşive gönderilsin mi?`)) {
+                await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
+                let { id, tamamlandi, ...data } = item;
+                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
+            }
+        }
+
         async function secilenleriYokListesineTasi() {
             const tamamlananlar = siparisler.filter(item => item.tamamlandi);
             if(tamamlananlar.length === 0) { alert("Önce listeden ürün işaretleyin!"); return; }
             for (let item of tamamlananlar) {
                 await fb.deleteDoc(fb.doc(fb.db, "siparisler", item.id));
-                let { id, ...data } = item;
-                await fb.addDoc(fb.collection(fb.db, "yokListesi"), data);
+                let { id, tamamlandi, ...data } = item;
+                await fb.addDoc(fb.collection(fb.db, "yokListesi"), { ...data, depo: data.depo || 'Seçilmedi', tamamlandi: false });
             }
             alert("İşaretlenen ürünler yok listesine taşındı.");
         }
@@ -591,7 +752,7 @@
             if(tamamlananlar.length === 0) { alert("Önce listeden ürün işaretleyin!"); return; }
             for (let item of tamamlananlar) {
                 await fb.deleteDoc(fb.doc(fb.db, "siparisler", item.id));
-                let { id, ...data } = item;
+                let { id, tamamlandi, ...data } = item;
                 await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
             }
             alert("İşaretlenen ürünler geçmiş arşivine taşındı.");
@@ -640,13 +801,13 @@
                 tr.innerHTML = `
                     <td class="p-3"><input type="checkbox" ${item.tamamlandi ? 'checked' : ''} onclick='durumuDegistir(${JSON.stringify(item)})' class="w-4 h-4 text-emerald-600 rounded cursor-pointer"></td>
                     <td class="p-3">
-                        <button onclick="depoDuzenleModu('${item.id}')" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${depoRozetRengi(item.depo)} mb-1 cursor-pointer">${item.depo} <i class="fa-solid fa-chevron-down ml-1 text-[9px]"></i></button>
+                        <button onclick="depoDuzenleModu('${item.id}')" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${depoRozetRengi(item.depo)} mb-1 cursor-pointer">${item.depo || 'Seçilmedi'} <i class="fa-solid fa-chevron-down ml-1 text-[9px]"></i></button>
                         <div class="font-medium text-slate-800">${item.adi}</div>
                         <div class="text-xs text-slate-400 font-mono">Barkod: ${item.barkod}</div>
                     </td>
                     <td class="p-3">
                         <span class="font-semibold text-emerald-700 mr-2">${item.miktari} ${item.birimi}</span>
-                        <button onclick='letData = ${JSON.stringify(item)}; miktarDuzenleModu(letData);' class="text-xs bg-slate-100 px-2 py-1 rounded">Düzenle</button>
+                        <button onclick='letData = ${JSON.stringify(item)}; aktifUrunDuzenleModalAc(letData);' class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded">Düzenle</button>
                     </td>
                     <td class="p-3"><span class="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded">${item.kategorisi}</span></td>
                     <td class="p-3 text-xs text-slate-600">${item.notu || '-'}</td>
@@ -664,7 +825,19 @@
             if (itriyatListesi.length === 0) { bosMesaj.classList.remove('hidden'); return; }
             bosMesaj.classList.add('hidden');
             itriyatListesi.forEach(item => {
-                tablo.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3">${item.adi}</td><td class="p-3">${item.miktari} ${item.birimi}</td><td class="p-3">${item.kategorisi}</td><td class="p-3">${item.notu||'-'}</td><td class="p-3 text-center"><button onclick="itriyatSil('${item.id}')" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+                tablo.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3">
+                            <div class="font-medium text-slate-800">${item.adi}</div>
+                            <div class="text-xs text-slate-400 font-mono">Barkod: ${item.barkod || '-'}</div>
+                        </td>
+                        <td class="p-3">
+                            <span class="font-semibold text-amber-700 mr-2">${item.miktari} ${item.birimi}</span>
+                        </td>
+                        <td class="p-3">${item.kategorisi}</td>
+                        <td class="p-3">${item.notu||'-'}</td>
+                        <td class="p-3 text-center"><button onclick="itriyatSil('${item.id}')" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
             });
         }
 
@@ -676,7 +849,28 @@
             if (yokListesi.length === 0) { bosMesaj.classList.remove('hidden'); return; }
             bosMesaj.classList.add('hidden');
             yokListesi.forEach(item => {
-                tablo.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3 text-xs">${item.eklenmeTarihi}</td><td class="p-3">${item.adi}</td><td class="p-3">${item.miktari} ${item.birimi}</td><td class="p-3">${item.notu||'-'}</td><td class="p-3 text-center"><button onclick="yokSil('${item.id}')" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50 transition ${item.tamamlandi ? 'opacity-60 bg-amber-50/40' : ''}`;
+                tr.innerHTML = `
+                    <td class="p-3 flex items-center gap-2">
+                        <input type="checkbox" ${item.tamamlandi ? 'checked' : ''} onclick='yokDurumuDegistir(${JSON.stringify(item)})' class="w-4 h-4 text-amber-600 rounded cursor-pointer" title="Arşive göndermek için seç">
+                        <span class="text-xs text-slate-500">${item.eklenmeTarihi}</span>
+                    </td>
+                    <td class="p-3">
+                        <button onclick="yokDepoDuzenleModu('${item.id}')" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${depoRozetRengi(item.depo)} mb-1 cursor-pointer">${item.depo || 'Depo Seç'} <i class="fa-solid fa-chevron-down ml-1 text-[9px]"></i></button>
+                        <div class="font-medium text-slate-800">${item.adi}</div>
+                        <div class="text-xs text-slate-400 font-mono">Barkod: ${item.barkod || '-'}</div>
+                    </td>
+                    <td class="p-3 font-semibold text-slate-700">${item.miktari} ${item.birimi}</td>
+                    <td class="p-3 text-xs text-slate-600">${item.notu||'-'}</td>
+                    <td class="p-3 text-center space-x-1">
+                        <button onclick='yokTekliArsivle(${JSON.stringify(item)})' class="bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs px-2.5 py-1 rounded transition" title="Arşive Gönder">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </button>
+                        <button onclick="yokSil('${item.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tablo.appendChild(tr);
             });
         }
 
@@ -772,6 +966,7 @@
                 if (doluMu) {
                     btn.onclick = () => {
                         secilenTakvimGunu = tarihFormat;
+                        document.getElementById('gecmisAramaInput').value = '';
                         gecmisiGoster();
                     };
                 } else {
@@ -790,12 +985,90 @@
         function takvimAyDegistir(yon) {
             takvimAktifTarih.setMonth(takvimAktifTarih.getMonth() + yon);
             secilenTakvimGunu = null;
+            document.getElementById('gecmisAramaInput').value = '';
             gecmisiGoster();
+        }
+
+        function gecmisUrunAra() {
+            const aranan = document.getElementById('gecmisAramaInput').value.toLowerCase().trim();
+            const kapsayici = document.getElementById('takvimGunKapsayici');
+            const bilgiKutusu = document.getElementById('takvimBaslikBilgi');
+            const takvimBox = document.getElementById('takvimKapsayiciDiv');
+
+            if (!aranan) {
+                takvimBox.style.display = 'block';
+                secilenGunuGoster();
+                return;
+            }
+
+            takvimBox.style.display = 'none';
+            bilgiKutusu.innerHTML = `<i class="fa-solid.fa-search mr-1"></i> Arama Sonucu: "${aranan}"`;
+
+            const bulunanlar = gecmisSiparisler.filter(item => 
+                (item.adi && item.adi.toLowerCase().includes(aranan)) || 
+                (item.barkod && item.barkod.toLowerCase().includes(aranan))
+            );
+
+            if (bulunanlar.length === 0) {
+                kapsayici.innerHTML = `<div class="text-center py-8 text-slate-400"><p>Aranan kriterlere uygun geçmiş sipariş bulunamadı.</p></div>`;
+                return;
+            }
+
+            let html = `
+                <div class="border rounded-xl bg-white p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                        <h3 class="font-bold text-emerald-800 flex items-center gap-2">
+                            <i class="fa-solid fa-search"></i> Arama Sonuçları 
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">${bulunanlar.length} Ürün Bulundu</span>
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="text-xs text-slate-500 border-b bg-slate-50">
+                                    <th class="p-2">Tarih</th>
+                                    <th class="p-2">Depo</th>
+                                    <th class="p-2">Ürün Adı / Barkod</th>
+                                    <th class="p-2">Miktar / MF</th>
+                                    <th class="p-2">Not</th>
+                                    <th class="p-2 text-center">Düzenle / Sil</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            bulunanlar.forEach(item => {
+                html += `
+                    <tr class="border-b hover:bg-slate-50 transition">
+                        <td class="p-2 text-xs text-slate-600">${item.eklenmeTarihi || '-'}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-xs font-semibold ${depoRozetRengi(item.depo)}">${item.depo}</span></td>
+                        <td class="p-2">
+                            <div class="font-medium text-slate-800">${item.adi}</div>
+                            <div class="text-xs text-slate-400 font-mono">${item.barkod || '-'}</div>
+                        </td>
+                        <td class="p-2 font-semibold text-emerald-700">${item.miktari} ${item.birimi}</td>
+                        <td class="p-2 text-xs text-slate-600">${item.notu || '-'}</td>
+                        <td class="p-2 text-center space-x-1">
+                            <button onclick='gecmisUrunDuzenleModalAc(${JSON.stringify(item)})' class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded transition" title="Depo ve Adet Düzenle">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="gecmisUrunSil('${item.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-2.5 py-1 rounded transition" title="Arşivden Sil">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table></div></div>`;
+            kapsayici.innerHTML = html;
         }
 
         function secilenGunuGoster() {
             const kapsayici = document.getElementById('takvimGunKapsayici');
             const bilgiKutusu = document.getElementById('takvimBaslikBilgi');
+            const takvimBox = document.getElementById('takvimKapsayiciDiv');
+            takvimBox.style.display = 'block';
             kapsayici.innerHTML = '';
             
             if(!secilenTakvimGunu) {
@@ -822,7 +1095,7 @@
                                 <tr class="text-xs text-slate-500 border-b bg-slate-50">
                                     <th class="p-2">Depo</th>
                                     <th class="p-2">Ürün Adı / Barkod</th>
-                                    <th class="p-2">Miktar</th>
+                                    <th class="p-2">Miktar / MF</th>
                                     <th class="p-2">Not</th>
                                     <th class="p-2 text-center">Düzenle / Sil</th>
                                 </tr>
@@ -859,7 +1132,7 @@
         function gecmisUrunDuzenleModalAc(item) {
             document.getElementById('duzenlenecekGecmisId').value = item.id;
             document.getElementById('duzenleDepo').value = item.depo || 'Seçilmedi';
-            document.getElementById('duzenleMiktar').value = item.miktari || 1;
+            document.getElementById('duzenleMiktar').value = item.miktari || '1';
             document.getElementById('duzenleBirim').value = item.birimi || 'Kutu';
             document.getElementById('gecmisDuzenleModal').classList.remove('hidden');
         }
@@ -875,8 +1148,8 @@
             const yeniMiktar = document.getElementById('duzenleMiktar').value.trim();
             const yeniBirim = document.getElementById('duzenleBirim').value;
 
-            if(!yeniMiktar || parseFloat(yeniMiktar) <= 0) {
-                alert("Geçerli bir miktar giriniz!");
+            if(!yeniMiktar) {
+                alert("Lütfen miktar veya MF giriniz!");
                 return;
             }
 
