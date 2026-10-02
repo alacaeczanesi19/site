@@ -47,14 +47,14 @@
 
                 <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3 text-sm">
                     <div class="bg-slate-200 text-slate-700 text-xs text-center py-1.5 px-3 rounded-lg self-center max-w-xs">
-                        Ortak sohbet odasına hoş geldiniz! Temizlemek için <b>/clear</b> yazabilirsiniz.
+                        Ortak sohbet odasına hoş geldiniz!
                     </div>
                 </div>
 
                 <div class="p-3 bg-white border-t border-slate-200 flex flex-col gap-2">
                     <input type="text" id="chat-user" placeholder="Adınız..." class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
                     <div class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Mesajınız veya /clear..." onkeypress="checkEnter(event)" class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
+                        <input type="text" id="chat-input" placeholder="Mesajınız" onkeypress="checkEnter(event)" class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
                         <button onclick="sendMessage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center cursor-pointer">
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
