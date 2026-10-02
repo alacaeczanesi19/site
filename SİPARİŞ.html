@@ -35,19 +35,19 @@
     <header class="bg-emerald-700 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
+                <!-- ANA SAYFA BUTONU (SOL ÜST) -->
+                <a href="index.html" class="bg-emerald-800 hover:bg-emerald-900 text-white p-2.5 rounded-lg shadow flex items-center justify-center transition" title="Ana Sayfaya Dön">
+                    <i class="fa-solid fa-house text-xl"></i>
+                </a>
                 <div class="bg-white text-emerald-700 p-2.5 rounded-lg shadow">
                     <i class="fa-solid fa-pills text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-wide">Alaca Eczanesi - Bulut Paneli</h1>
+                    <h1 class="text-2xl font-bold tracking-wide">Alaca Eczanesi</h1>
                     <p id="durumBilgi" class="text-emerald-100 text-sm">Bulut Veri Tabanı Bağlantısı Bekleniyor...</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-                <!-- Anasayfa / Index Butonu Eklendi -->
-                <button onclick="anasayfayaDon()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-3 py-2 rounded-lg text-sm font-semibold transition shadow" title="Anasayfaya Dön">
-                    <i class="fa-solid fa-house"></i> Anasayfa
-                </button>
                 <button onclick="sekmeDegistir('aktif')" id="btnAktif" class="bg-white text-emerald-800 px-3 py-2 rounded-lg text-sm font-semibold transition shadow">
                     <i class="fa-solid fa-list-check"></i> Aktif Siparişler
                 </button>
@@ -58,7 +58,7 @@
                     <i class="fa-solid fa-box-open"></i> İtriyat Paneli
                 </button>
                 <button onclick="sekmeDegistir('gecmis')" id="btnGecmis" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Geçmiş
+                    <i class="fa-solid fa-calendar-days"></i> Geçmiş Takvimi
                 </button>
                 <label class="bg-white text-emerald-800 hover:bg-emerald-50 px-3 py-2 rounded-lg text-sm font-semibold transition shadow cursor-pointer" title="Yeni Excel Güncelle">
                     <i class="fa-solid fa-file-excel mr-1"></i> Excel Güncelle
@@ -220,22 +220,32 @@
                 </div>
             </div>
 
-            <!-- GEÇMİŞ SİPARİŞLER ALANI (Takvim Filtresi ve Düzenleme Eklendi) -->
+            <!-- GEÇMİŞ TAKVİM SİPARİŞLERİ ALANI -->
             <div id="alanGecmis" class="hidden">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 border-b pb-4">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 border-b pb-4">
                     <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Sipariş Geçmişi ve Arşiv
+                        <i class="fa-solid fa-calendar-days text-emerald-600"></i> Sipariş Geçmişi Takvimi
                     </h2>
-                    <div class="flex items-center gap-2">
-                        <label for="tarihSecici" class="text-xs font-medium text-slate-600">Günlük Filtrele:</label>
-                        <input type="date" id="tarihSecici" onchange="gecmisiGoster()" class="px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <button onclick="tarihFiltresiniSifirla()" class="text-xs bg-slate-200 hover:bg-slate-300 px-2.5 py-1.5 rounded-lg transition">Tümünü Göster</button>
-                    </div>
+                    <div id="takvimBaslikBilgi" class="text-sm font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg"></div>
                 </div>
-                <div id="gecmisKapsayici" class="space-y-4"></div>
+                
+                <!-- Görsel Takvim Grid Yapısı -->
+                <div class="bg-slate-50 border rounded-xl p-4 mb-6 shadow-inner">
+                    <div class="flex justify-between items-center mb-3">
+                        <button onclick="takvimAyDegistir(-1)" class="px-3 py-1 bg-white border rounded-lg text-sm font-semibold hover:bg-slate-100 shadow-sm"><i class="fa-solid fa-chevron-left mr-1"></i> Önceki Ay</button>
+                        <h3 id="takvimAyYilBaslik" class="font-bold text-slate-700 text-base"></h3>
+                        <button onclick="takvimAyDegistir(1)" class="px-3 py-1 bg-white border rounded-lg text-sm font-semibold hover:bg-slate-100 shadow-sm">Sonraki Ay <i class="fa-solid fa-chevron-right ml-1"></i></button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-500 mb-2">
+                        <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
+                    </div>
+                    <div id="takvimGunleriGrid" class="grid grid-cols-7 gap-1.5"></div>
+                </div>
+
+                <div id="takvimGunKapsayici" class="space-y-4"></div>
                 <div id="bosGecmisMesaj" class="hidden text-center py-12 text-slate-400">
                     <i class="fa-solid fa-calendar-xmark text-4xl mb-3"></i>
-                    <p>Seçilen tarihte arşivde sipariş bulunamadı.</p>
+                    <p>Geçmiş arşivde sipariş bulunamadı.</p>
                 </div>
             </div>
         </div>
@@ -254,6 +264,47 @@
         </div>
     </div>
 
+    <!-- GEÇMİŞ ÜRÜN DEPO VE MİKTAR DÜZENLEME MODALI -->
+    <div id="gecmisDuzenleModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2">
+                <i class="fa-solid fa-pen-to-square text-emerald-600"></i> Geçmiş Ürün Düzenleme
+            </h3>
+            <input type="hidden" id="duzenlenecekGecmisId">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Ecza Deposu</label>
+                    <select id="duzenleDepo" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <option value="Hedef Ecza Deposu">Hedef Ecza Deposu</option>
+                        <option value="Nevzat Ecza Deposu">Nevzat Ecza Deposu</option>
+                        <option value="Selçuk Ecza Deposu">Selçuk Ecza Deposu</option>
+                        <option value="Seçilmedi">Seçilmedi</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Miktar</label>
+                        <input type="number" id="duzenleMiktar" min="1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Birim</label>
+                        <select id="duzenleBirim" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="Kutu">Kutu</option>
+                            <option value="Adet">Adet</option>
+                            <option value="Şişe">Şişe</option>
+                            <option value="Tüp">Tüp</option>
+                            <option value="Koli">Koli</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="gecmisDuzenleKapat()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">İptal</button>
+                <button onclick="gecmisDuzenleKaydet()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg">Değişiklikleri Kaydet</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let eczaneVeritabani = [];
         let siparisler = [];
@@ -263,20 +314,17 @@
         
         let aktifSekme = 'aktif';
         let aktifDuzenlenenDocId = null;
-        let aktifDuzenlenenGecmisDocId = null;
         let fb = null;
+
+        // Takvim için aktif yıl ve ay takibi
+        let takvimAktifTarih = new Date();
+        let secilenTakvimGunu = null;
 
         window.addEventListener('firebase-hazir', () => {
             fb = window.fbDB;
             document.getElementById('durumBilgi').innerText = "Bulut Veri Tabanı Aktif ve Bağlı (alacaeczanesi)";
             bulutVerileriniDinle();
         });
-
-        // Anasayfaya dönme fonksiyonu (index.html sayfasına yönlendirir veya ana sekmeye döner)
-        function anasayfayaDon() {
-            // Eğer ana dosyanızın adı index.html ise yönlendirir, değilse aktif sekmeye/ana ekrana odaklanır
-            window.location.href = "index.html";
-        }
 
         function bulutVerileriniDinle() {
             fb.onSnapshot(fb.query(fb.collection(fb.db, "siparisler")), (snapshot) => {
@@ -301,7 +349,6 @@
             fb.onSnapshot(fb.query(fb.collection(fb.db, "gecmisSiparisler")), (snapshot) => {
                 gecmisSiparisler = [];
                 snapshot.forEach((doc) => { gecmisSiparisler.push({ id: doc.id, ...doc.data() }); });
-                gecmisSiparisler.sort((a,b) => (b.docId || '').localeCompare(a.docId || ''));
                 gecmisiGoster();
             });
 
@@ -326,8 +373,8 @@
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
                 
                 eczaneVeritabani = rows.map(r => ({
-                    barkod: String(r['Barkod'] || r['barkod'] || '').replace(/\.0$/, ''),
-                    ad: String(r['Ürün Adı'] || r['Urun Adi'] || r['ad'] || '')
+                    barkod: String(r['Barkod']||r['barkod']||'').replace(/\.0$/, ''),
+                    ad: String(r['Ürün Adı']||r['Urun Adi']||r['ad']||'')
                 })).filter(x => x.ad && x.ad !== 'undefined');
 
                 await fb.setDoc(fb.doc(fb.db, "veritabani", "eczane_ilac_listesi"), { liste: eczaneVeritabani });
@@ -349,17 +396,35 @@
             const benzersizId = 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
             if (aktifSekme === 'itriyat') {
-                await fb.addDoc(fb.collection(fb.db, "itriyatListesi"), {
-                    docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: String(miktarVal), birimi: birimVal, kategorisi: kategoriVal, notu: notVal, eklenmeTarihi: simdi
-                });
+                let mevcut = itriyatListesi.find(i => i.adi.toLowerCase() === urunAdiVal.toLowerCase());
+                if (mevcut) {
+                    let cevap = confirm(`"${urunAdiVal}" zaten itriyat listesinde var. Mevcut miktara (${mevcut.miktari}) eklemek istiyor musunuz?\n(İptal'e basarsanız eklenmeyecektir.)`);
+                    if (!cevap) return; // İptal seçildiyse ekleme yapma
+                    let yeniMiktar = parseFloat(mevcut.miktari) + miktarVal;
+                    await fb.updateDoc(fb.doc(fb.db, "itriyatListesi", mevcut.id), { miktari: String(yeniMiktar) });
+                } else {
+                    await fb.addDoc(fb.collection(fb.db, "itriyatListesi"), {
+                        docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: String(miktarVal), birimi: birimVal, kategorisi: kategoriVal, notu: notVal, eklenmeTarihi: simdi
+                    });
+                }
                 document.getElementById('siparisForm').reset();
                 document.getElementById('urunMiktari').value = "1";
                 return;
             }
 
-            await fb.addDoc(fb.collection(fb.db, "siparisler"), {
-                docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: String(miktarVal), birimi: birimVal, kategorisi: kategoriVal, depo: "Seçilmedi", notu: notVal, eklenmeTarihi: simdi, tamamlandi: false
-            });
+            // Aktif siparişler kontrolü
+            let mevcutSiparis = siparisler.find(i => i.adi.toLowerCase() === urunAdiVal.toLowerCase());
+            if (mevcutSiparis) {
+                let cevap = confirm(`"${urunAdiVal}" zaten aktif sipariş listesinde var. Mevcut miktara (${mevcutSiparis.miktari}) eklemek istiyor musunuz?\n(İptal'e basarsanız eklenmeyecektir.)`);
+                if (!cevap) return; // İptal seçildiyse ekleme yapma
+                let yeniMiktar = parseFloat(mevcutSiparis.miktari) + miktarVal;
+                await fb.updateDoc(fb.doc(fb.db, "siparisler", mevcutSiparis.id), { miktari: String(yeniMiktar) });
+            } else {
+                await fb.addDoc(fb.collection(fb.db, "siparisler"), {
+                    docId: benzersizId, barkod: barkodVal || '-', adi: urunAdiVal, miktari: String(miktarVal), birimi: birimVal, kategorisi: kategoriVal, depo: "Seçilmedi", notu: notVal, eklenmeTarihi: simdi, tamamlandi: false
+                });
+            }
+
             document.getElementById('siparisForm').reset();
             document.getElementById('urunMiktari').value = "1";
         }
@@ -367,7 +432,6 @@
         async function sil(id) { await fb.deleteDoc(fb.doc(fb.db, "siparisler", id)); }
         async function itriyatSil(id) { await fb.deleteDoc(fb.doc(fb.db, "itriyatListesi", id)); }
         async function yokSil(id) { await fb.deleteDoc(fb.doc(fb.db, "yokListesi", id)); }
-        async function gecmisSil(id) { if(confirm("Bu geçmiş kaydını silmek istediğinize emin misiniz?")) { await fb.deleteDoc(fb.doc(fb.db, "gecmisSiparisler", id)); } }
 
         async function durumuDegistir(item) {
             await fb.updateDoc(fb.doc(fb.db, "siparisler", item.id), { tamamlandi: !item.tamamlandi });
@@ -380,35 +444,15 @@
             }
         }
 
-        // Geçmiş Kayıt İçin Düzenleme Fonksiyonları
-        async function gecmisMiktarDuzenle(id, mevcutMiktar) {
-            const yeniMiktar = prompt("Yeni miktarı girin:", mevcutMiktar);
-            if (yeniMiktar !== null && yeniMiktar.trim() !== "") {
-                await fb.updateDoc(fb.doc(fb.db, "gecmisSiparisler", id), { miktari: yeniMiktar.trim() });
-            }
-        }
-
-        async function gecmisDepoDuzenle(id, mevcutDepo) {
-            aktifDuzenlenenGecmisDocId = id;
-            document.getElementById('depoModal').classList.remove('hidden');
-        }
-
         function depoDuzenleModu(id) {
             aktifDuzenlenenDocId = id;
-            document.getElementById('depoModal').classList.add('hidden'); // Çakışma önlemi
             document.getElementById('depoModal').classList.remove('hidden');
         }
-        function depoModalKapat() { 
-            document.getElementById('depoModal').classList.add('hidden'); 
-            aktifDuzenlenenDocId = null; 
-            aktifDuzenlenenGecmisDocId = null;
-        }
+        function depoModalKapat() { document.getElementById('depoModal').classList.add('hidden'); aktifDuzenlenenDocId = null; }
 
         async function depoSecimiAyarla(depoAdi) {
             if (aktifDuzenlenenDocId !== null) {
                 await fb.updateDoc(fb.doc(fb.db, "siparisler", aktifDuzenlenenDocId), { depo: depoAdi });
-            } else if (aktifDuzenlenenGecmisDocId !== null) {
-                await fb.updateDoc(fb.doc(fb.db, "gecmisSiparisler", aktifDuzenlenenGecmisDocId), { depo: depoAdi });
             }
             depoModalKapat();
         }
@@ -443,6 +487,10 @@
             });
             document.getElementById('alan' + sekme.charAt(0).toUpperCase() + sekme.slice(1)).classList.remove('hidden');
             document.getElementById('btn' + sekme.charAt(0).toUpperCase() + sekme.slice(1)).className = "bg-white text-emerald-800 px-3 py-2 rounded-lg text-sm font-semibold transition shadow";
+            
+            if(sekme === 'gecmis') {
+                gecmisiGoster();
+            }
         }
 
         function depoRozetRengi(depoAdi) {
@@ -508,53 +556,201 @@
             });
         }
 
-        function tarihFiltresiniSifirla() {
-            document.getElementById('tarihSecici').value = '';
-            gecmisiGoster();
-        }
-
+        // --- GERÇEK GÖRSEL TAKVİM SİSTEMİ ---
         function gecmisiGoster() {
-            const kapsayici = document.getElementById('gecmisKapsayici');
             const bosMesaj = document.getElementById('bosGecmisMesaj');
-            const secilenTarihDegeri = document.getElementById('tarihSecici').value; // YYYY-MM-DD formatında gelir
-            
-            kapsayici.innerHTML = '';
-            
-            // Tarih filtresi uygulama
-            let filtrelenmisGecmis = gecmisSiparisler;
-            if (secilenTarihDegeri) {
-                // '02.10.2026' veya benzeri TR formatıyla 'YYYY-MM-DD' eşleştirmesi
-                const [yil, ay, gun] = secilenTarihDegeri.split('-');
-                const arananFormat = `${gun}.${ay}.${yil}`;
-                filtrelenmisGecmis = gecmisSiparisler.filter(item => item.eklenmeTarihi && item.eklenmeTarihi.includes(arananFormat));
-            }
-
-            if(filtrelenmisGecmis.length === 0) { 
+            if(gecmisSiparisler.length === 0) { 
                 bosMesaj.classList.remove('hidden'); 
+                document.getElementById('takvimGunleriGrid').innerHTML = '';
+                document.getElementById('takvimGunKapsayici').innerHTML = '';
+                document.getElementById('takvimAyYilBaslik').innerText = '';
                 return; 
             }
             bosMesaj.classList.add('hidden');
-            
-            let html = `<div class="border rounded-xl bg-white p-4 overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-xs text-slate-500 border-b"><th class="p-2">Tarih</th><th class="p-2">Depo (Düzenle)</th><th class="p-2">Ürün</th><th class="p-2">Miktar (Düzenle)</th><th class="p-2 text-center">Sil</th></tr></thead><tbody>`;
-            
-            filtrelenmisGecmis.forEach(item => {
-                html += `<tr class="border-b text-sm hover:bg-slate-50">
-                    <td class="p-2 text-xs text-slate-500">${item.eklenmeTarihi}</td>
-                    <td class="p-2">
-                        <button onclick="gecmisDepoDuzenle('${item.id}', '${item.depo}')" class="px-2 py-0.5 rounded text-xs font-semibold ${depoRozetRengi(item.depo)}">${item.depo} <i class="fa-solid fa-pen text-[9px] ml-1"></i></button>
-                    </td>
-                    <td class="p-2 font-medium">${item.adi}</td>
-                    <td class="p-2">
-                        <span class="font-semibold text-emerald-700 mr-2">${item.miktari} ${item.birimi}</span>
-                        <button onclick="gecmisMiktarDuzenle('${item.id}', '${item.miktari}')" class="text-xs bg-slate-100 px-2 py-1 rounded hover:bg-slate-200">Düzenle</button>
-                    </td>
-                    <td class="p-2 text-center">
-                        <button onclick="gecmisSil('${item.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>`;
+
+            // Kayıtlı günleri haritalandır (GG.AA.YYYY formatında)
+            const siparisGunleriMap = {};
+            gecmisSiparisler.forEach(item => {
+                let tarihGun = (item.eklenmeTarihi || '').split(' ')[0];
+                if(tarihGun) {
+                    siparisGunleriMap[tarihGun] = (siparisGunleriMap[tarihGun] || 0) + 1;
+                }
             });
-            html += `</tbody></table></div>`;
+
+            const yil = takvimAktifTarih.getFullYear();
+            const ay = takvimAktifTarih.getMonth();
+            
+            const ayIsimleri = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+            document.getElementById('takvimAyYilBaslik').innerText = `${ayIsimleri[ay]} ${yil}`;
+
+            const grid = document.getElementById('takvimGunleriGrid');
+            grid.innerHTML = '';
+
+            // Ayın ilk gününün haftadaki karşılığı (Pazartesi bazlı: 0-6)
+            let ilkGunIndex = new Date(yil, ay, 1).getDay();
+            ilkGunIndex = ilkGunIndex === 0 ? 6 : ilkGunIndex - 1; // Pazartesi başlangıçlı
+
+            const ayinSonGunu = new Date(yil, ay + 1, 0).getDate();
+
+            // Boşluklar
+            for (let i = 0; i < ilkGunIndex; i++) {
+                grid.innerHTML += `<div></div>`;
+            }
+
+            // Günleri doldur
+            let ilkGunStr = null;
+            for (let gun = 1; gun <= ayinSonGunu; gun++) {
+                let gStr = String(gun).padStart(2, '0');
+                let aStr = String(ay + 1).padStart(2, '0');
+                let tarihFormat = `${gStr}.${aStr}.${yil}`;
+                
+                let kayitSayisi = siparisGunleriMap[tarihFormat] || 0;
+                let doluMu = kayitSayisi > 0;
+
+                if (!secilenTakvimGunu && doluMu && !ilkGunStr) {
+                    ilkGunStr = tarihFormat;
+                }
+
+                let seciliMi = secilenTakvimGunu === tarihFormat;
+
+                let btn = document.createElement('button');
+                btn.type = "button";
+                btn.className = `h-10 rounded-lg flex flex-col items-center justify-center text-xs font-semibold transition relative border ${
+                    seciliMi ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-400' :
+                    doluMu ? 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100 font-bold' :
+                    'bg-white text-slate-400 border-slate-200 opacity-60'
+                }`;
+                
+                btn.innerHTML = `
+                    <span>${gun}</span>
+                    ${doluMu ? `<span class="text-[9px] ${seciliMi ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-800'} px-1 rounded-full mt-0.5">${kayitSayisi}</span>` : ''}
+                `;
+
+                if (doluMu) {
+                    btn.onclick = () => {
+                        secilenTakvimGunu = tarihFormat;
+                        gecmisiGoster();
+                    };
+                } else {
+                    btn.disabled = true;
+                }
+                grid.appendChild(btn);
+            }
+
+            if (!secilenTakvimGunu && ilkGunStr) {
+                secilenTakvimGunu = ilkGunStr;
+            }
+
+            secilenGunuGoster();
+        }
+
+        function takvimAyDegistir(yon) {
+            takvimAktifTarih.setMonth(takvimAktifTarih.getMonth() + yon);
+            secilenTakvimGunu = null; // Ay değişince seçimi sıfırla ki yeni aydan dolu gün seçilsin
+            gecmisiGoster();
+        }
+
+        function secilenGunuGoster() {
+            const kapsayici = document.getElementById('takvimGunKapsayici');
+            const bilgiKutusu = document.getElementById('takvimBaslikBilgi');
+            kapsayici.innerHTML = '';
+            
+            if(!secilenTakvimGunu) {
+                bilgiKutusu.innerText = "Lütfen takvimden sipariş olan bir gün seçin.";
+                kapsayici.innerHTML = `<div class="text-center py-8 text-slate-400"><p>Görüntülenecek gün seçilmedi.</p></div>`;
+                return;
+            }
+
+            bilgiKutusu.innerHTML = `<i class="fa-solid fa-calendar-check mr-1"></i> Seçilen Tarih: ${secilenTakvimGunu}`;
+
+            const gunlukListe = gecmisSiparisler.filter(item => (item.eklenmeTarihi || '').startsWith(secilenTakvimGunu));
+
+            let html = `
+                <div class="border rounded-xl bg-white p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                        <h3 class="font-bold text-emerald-800 flex items-center gap-2">
+                            <i class="fa-solid fa-list"></i> ${secilenTakvimGunu} Tarihli Sipariş Detayı 
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">${gunlukListe.length} Ürün</span>
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="text-xs text-slate-500 border-b bg-slate-50">
+                                    <th class="p-2">Depo</th>
+                                    <th class="p-2">Ürün Adı / Barkod</th>
+                                    <th class="p-2">Miktar</th>
+                                    <th class="p-2">Not</th>
+                                    <th class="p-2 text-center">Düzenle / Sil</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            gunlukListe.forEach(item => {
+                html += `
+                    <tr class="border-b hover:bg-slate-50 transition">
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-xs font-semibold ${depoRozetRengi(item.depo)}">${item.depo}</span></td>
+                        <td class="p-2">
+                            <div class="font-medium text-slate-800">${item.adi}</div>
+                            <div class="text-xs text-slate-400 font-mono">${item.barkod || '-'}</div>
+                        </td>
+                        <td class="p-2 font-semibold text-emerald-700">${item.miktari} ${item.birimi}</td>
+                        <td class="p-2 text-xs text-slate-600">${item.notu || '-'}</td>
+                        <td class="p-2 text-center space-x-1">
+                            <button onclick='gecmisUrunDuzenleModalAc(${JSON.stringify(item)})' class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded transition" title="Depo ve Adet Düzenle">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="gecmisUrunSil('${item.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-2.5 py-1 rounded transition" title="Arşivden Sil">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table></div></div>`;
             kapsayici.innerHTML = html;
+        }
+
+        function gecmisUrunDuzenleModalAc(item) {
+            document.getElementById('duzenlenecekGecmisId').value = item.id;
+            document.getElementById('duzenleDepo').value = item.depo || 'Seçilmedi';
+            document.getElementById('duzenleMiktar').value = item.miktari || 1;
+            document.getElementById('duzenleBirim').value = item.birimi || 'Kutu';
+            document.getElementById('gecmisDuzenleModal').classList.remove('hidden');
+        }
+
+        function gecmisDuzenleKapat() {
+            document.getElementById('gecmisDuzenleModal').classList.add('hidden');
+        }
+
+        async function gecmisDuzenleKaydet() {
+            if(!fb) return;
+            const id = document.getElementById('duzenlenecekGecmisId').value;
+            const yeniDepo = document.getElementById('duzenleDepo').value;
+            const yeniMiktar = document.getElementById('duzenleMiktar').value.trim();
+            const yeniBirim = document.getElementById('duzenleBirim').value;
+
+            if(!yeniMiktar || parseFloat(yeniMiktar) <= 0) {
+                alert("Geçerli bir miktar giriniz!");
+                return;
+            }
+
+            await fb.updateDoc(fb.doc(fb.db, "gecmisSiparisler", id), {
+                depo: yeniDepo,
+                miktari: yeniMiktar,
+                birimi: yeniBirim
+            });
+
+            gecmisDuzenleKapat();
+        }
+
+        async function gecmisUrunSil(id) {
+            if(!fb) return;
+            if(confirm("Bu geçmiş sipariş kaydını silmek istediğinize emin misiniz?")) {
+                await fb.deleteDoc(fb.doc(fb.db, "gecmisSiparisler", id));
+            }
         }
 
         function harfeGoreOner(deger) {
