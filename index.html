@@ -96,7 +96,7 @@
             <!-- Mesajların Listelendiği Alan -->
             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3 text-sm">
                 <div class="bg-slate-200 text-slate-700 text-xs text-center py-1.5 px-3 rounded-lg self-center max-w-xs">
-                    Sohbet odasına hoş geldiniz! Lütfen saygılı bir dil kullanın.
+                    Sohbet odasına hoş geldiniz! Sohbeti temizlemek için <b>/clear</b> yazabilirsiniz.
                 </div>
             </div>
 
@@ -104,7 +104,7 @@
             <div class="p-3 bg-white border-t border-slate-200 flex flex-col gap-2">
                 <input type="text" id="chat-user" placeholder="Adınız..." class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
                 <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." onkeypress="checkEnter(event)" class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
+                    <input type="text" id="chat-input" placeholder="Mesajınız veya /clear..." onkeypress="checkEnter(event)" class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
                     <button onclick="sendMessage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center cursor-pointer">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -113,7 +113,7 @@
         </div>
     </div>
 
-    <!-- Sohbet Mantığı (JavaScript ve Bildirim Sesi) -->
+    <!-- Sohbet Mantığı (JavaScript) -->
     <script>
         function toggleChat() {
             const chatBox = document.getElementById('chat-box');
@@ -123,7 +123,7 @@
             }
         }
 
-        // Web Audio API kullanarak harici dosya gerektirmeyen bildirim sesi
+        // Web Audio API bildirim sesi
         function playNotificationSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -131,8 +131,8 @@
                 const gainNode = audioCtx.createGain();
 
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 notası
-                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5 notasına geçiş
+                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
 
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
@@ -156,6 +156,17 @@
             const name = userNameInput.value.trim() || "Misafir";
 
             if (text === "") return;
+
+            // /clear komutu kontrolü
+            if (text === "/clear") {
+                messagesContainer.innerHTML = `
+                    <div class="bg-slate-200 text-slate-700 text-xs text-center py-1.5 px-3 rounded-lg self-center max-w-xs">
+                        Sohbet geçmişi temizlendi.
+                    </div>
+                `;
+                userInput.value = "";
+                return;
+            }
 
             // Yeni mesaj balonu oluşturma
             const messageDiv = document.createElement('div');
