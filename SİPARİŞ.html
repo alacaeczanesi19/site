@@ -44,6 +44,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
+                <!-- Anasayfa / Index Butonu Eklendi -->
+                <button onclick="anasayfayaDon()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-3 py-2 rounded-lg text-sm font-semibold transition shadow" title="Anasayfaya Dön">
+                    <i class="fa-solid fa-house"></i> Anasayfa
+                </button>
                 <button onclick="sekmeDegistir('aktif')" id="btnAktif" class="bg-white text-emerald-800 px-3 py-2 rounded-lg text-sm font-semibold transition shadow">
                     <i class="fa-solid fa-list-check"></i> Aktif Siparişler
                 </button>
@@ -216,17 +220,22 @@
                 </div>
             </div>
 
-            <!-- GEÇMİŞ SİPARİŞLER ALANI -->
+            <!-- GEÇMİŞ SİPARİŞLER ALANI (Takvim Filtresi ve Düzenleme Eklendi) -->
             <div id="alanGecmis" class="hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 border-b pb-4">
                     <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Sipariş Geçmişi ve Arşiv
                     </h2>
+                    <div class="flex items-center gap-2">
+                        <label for="tarihSecici" class="text-xs font-medium text-slate-600">Günlük Filtrele:</label>
+                        <input type="date" id="tarihSecici" onchange="gecmisiGoster()" class="px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <button onclick="tarihFiltresiniSifirla()" class="text-xs bg-slate-200 hover:bg-slate-300 px-2.5 py-1.5 rounded-lg transition">Tümünü Göster</button>
+                    </div>
                 </div>
                 <div id="gecmisKapsayici" class="space-y-4"></div>
                 <div id="bosGecmisMesaj" class="hidden text-center py-12 text-slate-400">
                     <i class="fa-solid fa-calendar-xmark text-4xl mb-3"></i>
-                    <p>Geçmiş arşivde sipariş bulunamadı.</p>
+                    <p>Seçilen tarihte arşivde sipariş bulunamadı.</p>
                 </div>
             </div>
         </div>
@@ -254,6 +263,7 @@
         
         let aktifSekme = 'aktif';
         let aktifDuzenlenenDocId = null;
+        let aktifDuzenlenenGecmisDocId = null;
         let fb = null;
 
         window.addEventListener('firebase-hazir', () => {
@@ -261,6 +271,12 @@
             document.getElementById('durumBilgi').innerText = "Bulut Veri Tabanı Aktif ve Bağlı (alacaeczanesi)";
             bulutVerileriniDinle();
         });
+
+        // Anasayfaya dönme fonksiyonu (index.html sayfasına yönlendirir veya ana sekmeye döner)
+        function anasayfayaDon() {
+            // Eğer ana dosyanızın adı index.html ise yönlendirir, değilse aktif sekmeye/ana ekrana odaklanır
+            window.location.href = "index.html";
+        }
 
         function bulutVerileriniDinle() {
             fb.onSnapshot(fb.query(fb.collection(fb.db, "siparisler")), (snapshot) => {
@@ -285,6 +301,7 @@
             fb.onSnapshot(fb.query(fb.collection(fb.db, "gecmisSiparisler")), (snapshot) => {
                 gecmisSiparisler = [];
                 snapshot.forEach((doc) => { gecmisSiparisler.push({ id: doc.id, ...doc.data() }); });
+                gecmisSiparisler.sort((a,b) => (b.docId || '').localeCompare(a.docId || ''));
                 gecmisiGoster();
             });
 
@@ -350,6 +367,7 @@
         async function sil(id) { await fb.deleteDoc(fb.doc(fb.db, "siparisler", id)); }
         async function itriyatSil(id) { await fb.deleteDoc(fb.doc(fb.db, "itriyatListesi", id)); }
         async function yokSil(id) { await fb.deleteDoc(fb.doc(fb.db, "yokListesi", id)); }
+        async function gecmisSil(id) { if(confirm("Bu geçmiş kaydını silmek istediğinize emin misiniz?")) { await fb.deleteDoc(fb.doc(fb.db, "gecmisSiparisler", id)); } }
 
         async function durumuDegistir(item) {
             await fb.updateDoc(fb.doc(fb.db, "siparisler", item.id), { tamamlandi: !item.tamamlandi });
@@ -362,15 +380,35 @@
             }
         }
 
-        function depoDuzenleModu(id) {
-            aktifDuzenlenenDocId = id;
+        // Geçmiş Kayıt İçin Düzenleme Fonksiyonları
+        async function gecmisMiktarDuzenle(id, mevcutMiktar) {
+            const yeniMiktar = prompt("Yeni miktarı girin:", mevcutMiktar);
+            if (yeniMiktar !== null && yeniMiktar.trim() !== "") {
+                await fb.updateDoc(fb.doc(fb.db, "gecmisSiparisler", id), { miktari: yeniMiktar.trim() });
+            }
+        }
+
+        async function gecmisDepoDuzenle(id, mevcutDepo) {
+            aktifDuzenlenenGecmisDocId = id;
             document.getElementById('depoModal').classList.remove('hidden');
         }
-        function depoModalKapat() { document.getElementById('depoModal').classList.add('hidden'); aktifDuzenlenenDocId = null; }
+
+        function depoDuzenleModu(id) {
+            aktifDuzenlenenDocId = id;
+            document.getElementById('depoModal').classList.add('hidden'); // Çakışma önlemi
+            document.getElementById('depoModal').classList.remove('hidden');
+        }
+        function depoModalKapat() { 
+            document.getElementById('depoModal').classList.add('hidden'); 
+            aktifDuzenlenenDocId = null; 
+            aktifDuzenlenenGecmisDocId = null;
+        }
 
         async function depoSecimiAyarla(depoAdi) {
             if (aktifDuzenlenenDocId !== null) {
                 await fb.updateDoc(fb.doc(fb.db, "siparisler", aktifDuzenlenenDocId), { depo: depoAdi });
+            } else if (aktifDuzenlenenGecmisDocId !== null) {
+                await fb.updateDoc(fb.doc(fb.db, "gecmisSiparisler", aktifDuzenlenenGecmisDocId), { depo: depoAdi });
             }
             depoModalKapat();
         }
@@ -470,16 +508,50 @@
             });
         }
 
+        function tarihFiltresiniSifirla() {
+            document.getElementById('tarihSecici').value = '';
+            gecmisiGoster();
+        }
+
         function gecmisiGoster() {
             const kapsayici = document.getElementById('gecmisKapsayici');
             const bosMesaj = document.getElementById('bosGecmisMesaj');
+            const secilenTarihDegeri = document.getElementById('tarihSecici').value; // YYYY-MM-DD formatında gelir
+            
             kapsayici.innerHTML = '';
-            if(gecmisSiparisler.length === 0) { bosMesaj.classList.remove('hidden'); return; }
+            
+            // Tarih filtresi uygulama
+            let filtrelenmisGecmis = gecmisSiparisler;
+            if (secilenTarihDegeri) {
+                // '02.10.2026' veya benzeri TR formatıyla 'YYYY-MM-DD' eşleştirmesi
+                const [yil, ay, gun] = secilenTarihDegeri.split('-');
+                const arananFormat = `${gun}.${ay}.${yil}`;
+                filtrelenmisGecmis = gecmisSiparisler.filter(item => item.eklenmeTarihi && item.eklenmeTarihi.includes(arananFormat));
+            }
+
+            if(filtrelenmisGecmis.length === 0) { 
+                bosMesaj.classList.remove('hidden'); 
+                return; 
+            }
             bosMesaj.classList.add('hidden');
             
-            let html = `<div class="border rounded-xl bg-white p-4 overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-xs text-slate-500 border-b"><th class="p-2">Tarih</th><th class="p-2">Depo</th><th class="p-2">Ürün</th><th class="p-2">Miktar</th></tr></thead><tbody>`;
-            gecmisSiparisler.forEach(item => {
-                html += `<tr class="border-b text-sm"><td class="p-2 text-xs text-slate-500">${item.eklenmeTarihi}</td><td class="p-2">${item.depo}</td><td class="p-2">${item.adi}</td><td class="p-2">${item.miktari} ${item.birimi}</td></tr>`;
+            let html = `<div class="border rounded-xl bg-white p-4 overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-xs text-slate-500 border-b"><th class="p-2">Tarih</th><th class="p-2">Depo (Düzenle)</th><th class="p-2">Ürün</th><th class="p-2">Miktar (Düzenle)</th><th class="p-2 text-center">Sil</th></tr></thead><tbody>`;
+            
+            filtrelenmisGecmis.forEach(item => {
+                html += `<tr class="border-b text-sm hover:bg-slate-50">
+                    <td class="p-2 text-xs text-slate-500">${item.eklenmeTarihi}</td>
+                    <td class="p-2">
+                        <button onclick="gecmisDepoDuzenle('${item.id}', '${item.depo}')" class="px-2 py-0.5 rounded text-xs font-semibold ${depoRozetRengi(item.depo)}">${item.depo} <i class="fa-solid fa-pen text-[9px] ml-1"></i></button>
+                    </td>
+                    <td class="p-2 font-medium">${item.adi}</td>
+                    <td class="p-2">
+                        <span class="font-semibold text-emerald-700 mr-2">${item.miktari} ${item.birimi}</span>
+                        <button onclick="gecmisMiktarDuzenle('${item.id}', '${item.miktari}')" class="text-xs bg-slate-100 px-2 py-1 rounded hover:bg-slate-200">Düzenle</button>
+                    </td>
+                    <td class="p-2 text-center">
+                        <button onclick="gecmisSil('${item.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
             });
             html += `</tbody></table></div>`;
             kapsayici.innerHTML = html;
