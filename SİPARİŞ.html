@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <!-- Firebase SDK'larını ekleyin -->
+<script type="module">
+  // Firebase kütüphanelerini internetten çağırıyoruz
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // Adım 2'de kopyaladığınız kendi config bilgilerinizi buraya yapıştırın:
+  const firebaseConfig = {
+  apiKey: "AIzaSyBYQZEYws-2H_wNMLjJ49xw0FpvOOWX3k4",
+  authDomain: "alacaeczanesi.firebaseapp.com",
+  projectId: "alacaeczanesi",
+  storageBucket: "alacaeczanesi.firebasestorage.app",
+  messagingSenderId: "225106853473",
+  appId: "1:225106853473:web:3b2f4b5e272d6e919e7420",
+  measurementId: "G-TC8HKVJS04"
+  };
+
+  // Firebase'i başlat
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Artık verilerinizi tarayıcının localStorage yerine doğrudan 'db' (Firestore) üzerine kaydedebilirsiniz!
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eczane Akıllı Sipariş ve Depo Yönetim Sistemi</title>
