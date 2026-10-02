@@ -114,6 +114,14 @@
             background-color: #4b5563;
         }
 
+        .home-btn {
+            background-color: #059669;
+            margin-bottom: 15px;
+        }
+        .home-btn:hover {
+            background-color: #047857;
+        }
+
         .danger-btn {
             background-color: var(--danger-color);
         }
@@ -416,6 +424,9 @@
     <div class="container" id="main-container">
         <!-- GİRİŞ EKRANI -->
         <div id="login-screen">
+            <!-- Ana Sayfaya Dönüş Butonu Eklendi -->
+            <button onclick="window.location.href='index.html'" class="home-btn">🏠 Ana Sayfaya Dön</button>
+            
             <h2>🔒 Kullanıcı Girişi</h2>
             <div class="form-group">
                 <label for="login-user-input">Kullanıcı Adı:</label>
