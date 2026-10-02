@@ -587,7 +587,6 @@
             setupDatalistTrigger();
         };
 
-        // Firebase Güvenli Kullanıcı Adı Dönüştürücü (Firebase key'lerinde nokta vb. karakterler sorun çıkarabilir)
         function sanitizeKey(username) {
             return username.trim().replace(/[.#$\/\[\]]/g, "_");
         }
