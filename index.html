@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (Compat Sürümleri - HTML İçi Kullanım İçin) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -100,7 +100,7 @@
             <!-- Mesajların Listelendiği Alan -->
             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3 text-sm">
                 <div class="bg-slate-200 text-slate-700 text-xs text-center py-1.5 px-3 rounded-lg self-center max-w-xs">
-                    Ortak sohbet odasına hoş geldiniz!
+                    Ortak sohbet odasına hoş geldiniz! 
                 </div>
             </div>
 
@@ -119,7 +119,6 @@
 
     <!-- Firebase ve Sohbet Mantığı -->
     <script>
-        // Sizin Firebase Konfigürasyonunuz
         const firebaseConfig = {
             apiKey: "AIzaSyBYQZEYws-2H_wNMLjJ49xw0FpvOOWX3k4",
             authDomain: "alacaeczanesi.firebaseapp.com",
@@ -131,12 +130,22 @@
             measurementId: "G-KQS93JMS4P"
         };
 
-        // Firebase başlatma
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const chatRef = db.ref('messages');
 
+        let audioCtx = null;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } else if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
         function toggleChat() {
+            initAudioContext(); // Kullanıcı butona tıkladığında ses bağlamını aktif et
             const chatBox = document.getElementById('chat-box');
             chatBox.classList.toggle('hidden');
             if (!chatBox.classList.contains('hidden')) {
@@ -144,10 +153,13 @@
             }
         }
 
-        // Web Audio API bildirim sesi
         function playNotificationSound() {
             try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (!audioCtx) return;
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
 
@@ -169,6 +181,7 @@
         }
 
         function sendMessage() {
+            initAudioContext();
             const userInput = document.getElementById('chat-input');
             const userNameInput = document.getElementById('chat-user');
 
@@ -177,14 +190,12 @@
 
             if (text === "") return;
 
-            // /clear komutu ile veritabanındaki tüm mesajları sıfırlama
             if (text === "/clear") {
                 chatRef.remove();
                 userInput.value = "";
                 return;
             }
 
-            // Firebase veritabanına yeni mesaj gönder
             chatRef.push({
                 name: name,
                 text: text,
@@ -194,7 +205,6 @@
             userInput.value = "";
         }
 
-        // Veritabanındaki mesajları dinle ve ekranda göster
         chatRef.on('child_added', (snapshot) => {
             const data = snapshot.val();
             const messagesContainer = document.getElementById('chat-messages');
@@ -214,7 +224,6 @@
             playNotificationSound();
         });
 
-        // Sohbet temizlendiğinde ekranı güncelle
         chatRef.on('value', (snapshot) => {
             if (!snapshot.exists()) {
                 const messagesContainer = document.getElementById('chat-messages');
