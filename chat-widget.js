@@ -23,12 +23,15 @@
     }
 
     function initChatWidget() {
-        // Sohbet HTML Yapısı
+        let unreadCount = 0;
+
+        // Sohbet HTML Yapısı (Sayaç rozeti eklendi)
         const chatHTML = `
         <div id="chat-container" class="fixed bottom-6 right-6 z-50 font-sans">
-            <button id="chat-toggle-btn" onclick="toggleChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 cursor-pointer">
+            <button id="chat-toggle-btn" onclick="toggleChat()" class="relative bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 cursor-pointer">
                 <i class="fa-solid fa-comments text-lg"></i>
                 <span>Sohbet Et</span>
+                <span id="chat-badge" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md animate-bounce">0</span>
             </button>
 
             <div id="chat-box" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 h-[450px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
@@ -96,10 +99,25 @@
             window.initAudioContext();
             const chatBox = document.getElementById('chat-box');
             chatBox.classList.toggle('hidden');
+            
+            // Sohbet açıldığında okunmamış mesaj sayacını sıfırla
             if (!chatBox.classList.contains('hidden')) {
+                unreadCount = 0;
+                updateBadge();
                 document.getElementById('chat-input').focus();
             }
         };
+
+        function updateBadge() {
+            const badge = document.getElementById('chat-badge');
+            if (!badge) return;
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
 
         function playNotificationSound() {
             try {
@@ -169,6 +187,13 @@
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             playNotificationSound();
+
+            // Eğer sohbet kutusu kapalıysa sayacı artır
+            const chatBox = document.getElementById('chat-box');
+            if (chatBox && chatBox.classList.contains('hidden')) {
+                unreadCount++;
+                updateBadge();
+            }
         });
 
         chatRef.on('value', (snapshot) => {
@@ -180,6 +205,8 @@
                         Sohbet geçmişi temizlendi.
                     </div>
                 `;
+                unreadCount = 0;
+                updateBadge();
             }
         });
 
