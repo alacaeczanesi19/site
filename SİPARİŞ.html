@@ -6,7 +6,25 @@
     <title>Eczane Akıllı Sipariş ve Depo Yönetim Sistemi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><header>
+        <header class="bg-emerald-700 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        
+        <!-- YENİ: Ana Sayfa Butonu -->
+        <a href="index.html" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 border border-white/20 shadow">
+            <i class="fa-solid fa-house"></i> Anasayfa
+        </a>
+
+        <div class="flex items-center space-x-3">
+            <div class="bg-white text-emerald-700 p-2.5 rounded-lg shadow">
+                <i class="fa-solid fa-pills text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-wide">Eczane Depo & Sipariş Paneli</h1>
+                <p id="durumBilgi" class="text-emerald-100 text-sm">Ürün veritabanı yükleniyor...</p>
+            </div>
+        </div>
+        <!-- Diğer butonlar... -->
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
     <header class="bg-emerald-700 text-white shadow-md">
