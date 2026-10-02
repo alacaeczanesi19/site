@@ -21,67 +21,9 @@
         </a>
     </div>
 
-    <!-- Sağ Tarafta Doktor Dahili Numaraları Paneli -->
-    <aside class="fixed top-20 right-4 z-40 hidden lg:block w-72 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-        <div class="bg-emerald-700 text-white px-4 py-3 font-semibold text-sm flex items-center gap-2">
-            <i class="fa-solid fa-user-doctor"></i>
-            <span>Doktor Dahili Numaraları</span>
-        </div>
-        <div class="p-3 max-h-[calc(100vh-180px)] overflow-y-auto space-y-2 text-xs">
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">SİBEL TURAN</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1140</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">FİZİK TEDAVİ</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1138</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">GÖZ DOKTORU</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1083</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">ORTOPEDİ DOKTORU</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1037</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">OSMAN NURİ KOYUN</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1068</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">CEMALETTİN YANIK</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1070</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">YASEMİN KARAKURT</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1073</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">ÜROLOJİ DOKTORU</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1108</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">ALİ AKYİĞİT</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1067</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">KBB DOKTORU</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1081</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">KADIN DOĞUM</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1142</span>
-            </div>
-            <div class="flex justify-between items-center p-2 bg-slate-50 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-100">
-                <span class="font-medium text-slate-700">GENEL CERRAH</span>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1066</span>
-            </div>
-        </div>
-    </aside>
-
     <!-- Üst Bilgi / Header -->
     <header class="bg-emerald-700 text-white shadow-md">
-        <div class="max-w-4xl mx-auto px-6 py-6 text-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 text-center">
             <div class="inline-flex bg-white text-emerald-700 p-3 rounded-2xl shadow-lg mb-3">
                 <i class="fa-solid fa-house-medical text-3xl"></i>
             </div>
@@ -90,42 +32,105 @@
         </div>
     </header>
 
-    <!-- Ana İçerik / Kartlar -->
-    <main class="max-w-4xl mx-auto px-6 py-12 w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Ana İçerik / Kartlar ve Doktor Numaraları Yan Yana -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10 w-full grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
         
-        <!-- SİPARİŞ SİTESİ KARTI -->
-        <a href="SİPARİŞ.html" class="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
-            <div>
-                <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-inner">
-                    <i class="fa-solid fa-cart-shopping"></i>
+        <!-- Sol Taraf: Kartlar (Sipariş ve Notlar) -->
+        <div class="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- SİPARİŞ SİTESİ KARTI -->
+            <a href="SİPARİŞ.html" class="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+                <div>
+                    <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-emerald-700 transition-colors">Eczane Akıllı Sipariş</h2>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Depo siparişleri, yok listeleri, itriyat yönetimi, Excel entegrasyonu ve geçmiş sipariş takibi[cite: 1].
+                    </p>
                 </div>
-                <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-emerald-700 transition-colors">Eczane Akıllı Sipariş</h2>
-                <p class="text-slate-500 text-sm leading-relaxed">
-                    Depo siparişleri, yok listeleri, itriyat yönetimi, Excel entegrasyonu ve geçmiş sipariş takibi.
-                </p>
-            </div>
-            <div class="mt-8 flex items-center text-emerald-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
-                <span>Sisteme Git</span>
-                <i class="fa-solid fa-arrow-right ml-2"></i>
-            </div>
-        </a>
+                <div class="mt-8 flex items-center text-emerald-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
+                    <span>Sisteme Git</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
 
-        <!-- NOT DEFTERİ SİTESİ KARTI -->
-        <a href="NOT DEFTERİ.HTML" class="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
-            <div>
-                <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-inner">
-                    <i class="fa-solid fa-book-open"></i>
+            <!-- NOT DEFTERİ SİTESİ KARTI -->
+            <a href="NOT DEFTERİ.HTML" class="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+                <div>
+                    <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">Notlar ve Günlük</h2>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Çoklu kullanıcı desteği, günlük not alma, sabit hatırlatıcılar ve admin yönetim paneli[cite: 1].
+                    </p>
                 </div>
-                <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">Notlar ve Günlük</h2>
-                <p class="text-slate-500 text-sm leading-relaxed">
-                    Çoklu kullanıcı desteği, günlük not alma, sabit hatırlatıcılar ve admin yönetim paneli.
-                </p>
+                <div class="mt-8 flex items-center text-indigo-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
+                    <span>Sisteme Git</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Sağ Taraf: Doktor Dahili Numaraları Paneli -->
+        <aside class="xl:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+            <div class="bg-emerald-700 text-white px-5 py-4 font-semibold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-user-doctor"></i>
+                <span>Doktor Dahili Numaraları</span>
             </div>
-            <div class="mt-8 flex items-center text-indigo-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
-                <span>Sisteme Git</span>
-                <i class="fa-solid fa-arrow-right ml-2"></i>
+            <div class="p-4 flex-1 overflow-y-auto space-y-2 text-xs max-h-[500px]">
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">SİBEL TURAN</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1140</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">FİZİK TEDAVİ</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1138</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">GÖZ DOKTORU</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1083</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">ORTOPEDİ DOKTORU</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1037</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">OSMAN NURİ KOYUN</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1068</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">CEMALETTİN YANIK</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1070</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">YASEMİN KARAKURT</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1073</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">ÜROLOJİ DOKTORU</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1108</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">ALİ AKYİĞİT</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1067</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">KBB DOKTORU</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1081</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">KADIN DOĞUM</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1142</span>
+                </div>
+                <div class="flex justify-between items-center p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl transition-colors border border-slate-100">
+                    <span class="font-medium text-slate-700">GENEL CERRAH</span>
+                    <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md">1066</span>
+                </div>
             </div>
-        </a>
+        </aside>
 
     </main>
 
