@@ -113,13 +113,37 @@
         </div>
     </div>
 
-    <!-- Sohbet Mantığı (JavaScript) -->
+    <!-- Sohbet Mantığı (JavaScript ve Bildirim Sesi) -->
     <script>
         function toggleChat() {
             const chatBox = document.getElementById('chat-box');
             chatBox.classList.toggle('hidden');
             if (!chatBox.classList.contains('hidden')) {
                 document.getElementById('chat-input').focus();
+            }
+        }
+
+        // Web Audio API kullanarak harici dosya gerektirmeyen bildirim sesi
+        function playNotificationSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 notası
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5 notasına geçiş
+
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {
+                console.log("Ses çalınamadı: ", e);
             }
         }
 
@@ -146,9 +170,10 @@
 
             messagesContainer.appendChild(messageDiv);
             
-            // Girdiyi temizle ve en alta kaydır
+            // Girdiyi temizle, en alta kaydır ve bildirim sesi çal
             userInput.value = "";
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            playNotificationSound();
         }
 
         function checkEnter(event) {
