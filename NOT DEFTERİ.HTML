@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çoklu Kullanıcılı Küçük Notlar Günlüğü</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #d1d5db;
+            --danger-color: #dc2626;
+            --fixed-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            transition: max-width 0.3s ease;
+        }
+
+        .container.wide-container {
+            max-width: 950px;
+            width: 95vw;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .secondary-btn {
+            background-color: #6b7280;
+            margin-top: 10px;
+        }
+        .secondary-btn:hover {
+            background-color: #4b5563;
+        }
+
+        .danger-btn {
+            background-color: var(--danger-color);
+        }
+        .danger-btn:hover {
+            background-color: #b91c1c;
+        }
+
+        .fixed-btn {
+            background-color: var(--fixed-color);
+        }
+        .fixed-btn:hover {
+            background-color: #d97706;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.75rem;
+            text-align: left;
+            grid-column: 1 / -1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .left-panel, .right-panel {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .right-panel {
+            max-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            max-height: 380px;
+            padding-right: 5px;
+        }
+
+        .date-nav-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-nav-btn {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0.75rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: auto;
+            margin-top: 0;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .date-nav-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .note-card {
+            background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+            border: 1px solid #eab308;
+            border-left: 6px solid #ca8a04;
+            padding: 1rem 1rem 1rem 1.1rem;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            transition: all 0.25s ease;
+        }
+
+        .note-card.fixed {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border: 1px solid #38bdf8;
+            border-left: 6px solid #0284c7;
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+
+        .note-card.completed {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-color: #34d399;
+            border-left-color: #059669;
+        }
+
+        .note-card.completed p {
+            text-decoration: line-through;
+            color: #065f46;
+            opacity: 0.85;
+        }
+
+        .note-content-wrapper {
+            margin: 0;
+            padding-right: 22px;
+            padding-left: 32px;
+            position: relative;
+        }
+
+        .note-checkbox {
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #059669;
+            border-radius: 4px;
+        }
+
+        .note-card p {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #422006;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            transition: color 0.2s;
+        }
+        
+        .note-card.fixed p {
+            color: #0c4a6e;
+        }
+
+        .toggle-expand-btn {
+            background: none;
+            border: none;
+            color: #854d0e;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            margin-top: 6px;
+            margin-left: 32px;
+            display: inline-block;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+
+        .toggle-expand-btn:hover {
+            color: #422006;
+        }
+
+        .delete-note-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #b91c1c;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            width: auto;
+            margin: 0;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .delete-note-btn:hover {
+            opacity: 1;
+            color: #991b1b;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            max-height: 50vh;
+            margin-bottom: 1.5rem;
+            padding-right: 5px;
+        }
+
+        .modal-content p {
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.6;
+            font-size: 1rem;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .modal-close-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .modal-close-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .alert {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .switch-text {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .switch-text a {
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-container">
+        <!-- GİRİŞ EKRANI -->
+        <div id="login-screen">
+            <h2>🔒 Kullanıcı Girişi</h2>
+            <div class="form-group">
+                <label for="login-user-input">Kullanıcı Adı:</label>
+                <input type="text" id="login-user-input" list="users-datalist" placeholder="Kullanıcı adınızı yazın veya seçin" autocomplete="off" onfocus="this.value='';" onclick="this.value='';">
+                <datalist id="users-datalist"></datalist>
+            </div>
+            <div class="form-group">
+                <label for="login-pass">Şifre:</label>
+                <input type="password" id="login-pass" placeholder="Şifreniz" onkeypress="checkLoginEnter(event)">
+            </div>
+            <button onclick="loginUser()">Giriş Yap</button>
+            <div id="login-error" class="alert"></div>
+            <div class="switch-text">
+                Yeni bir kullanıcı mı eklemek istiyorsunuz? <a onclick="showRegisterScreen()">Yeni Kullanıcı Kaydet</a>
+            </div>
+        </div>
+
+        <!-- KAYIT OLMA EKRANI -->
+        <div id="register-screen" class="hidden">
+            <h2>📝 Yeni Kullanıcı Kaydı</h2>
+            <div class="form-group">
+                <label for="reg-user">Kullanıcı Adı:</label>
+                <input type="text" id="reg-user" placeholder="Benzersiz bir kullanıcı adı">
+            </div>
+            <div class="form-group">
+                <label for="reg-pass">Şifre:</label>
+                <input type="password" id="reg-pass" placeholder="Şifrenizi belirleyin">
+            </div>
+            <button onclick="registerUser()">Kayıt Ol ve Giriş Yap</button>
+            <button onclick="showLoginScreen()" class="secondary-btn">Giriş Ekranına Dön</button>
+            <div id="reg-error" class="alert"></div>
+        </div>
+
+        <!-- ANA EKRAN (GÜNLÜK & SABİT NOTLAR) -->
+        <div id="main-screen" class="hidden">
+            <div class="header-bar">
+                <span id="welcome-msg" style="font-weight: bold; color: var(--primary-color); font-size: 1.05rem;"></span>
+                <div class="header-buttons">
+                    <button id="toggle-view-btn" onclick="toggleNotesView()" class="fixed-btn" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-top:0;">📌 Sabit Notlar</button>
+                    <button id="admin-panel-btn" onclick="showAdminPanel()" class="hidden" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-top:0; background-color: #059669;">Yönetim Paneli</button>
+                    <button onclick="showChangePassModal()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-top:0;">Şifre Değiştir</button>
+                    <button onclick="logout()" class="danger-btn" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-top:0;">Çıkış</button>
+                </div>
+            </div>
+
+            <h2 id="main-title" style="grid-column: 1 / -1; margin-bottom: 1rem;">📖 Küçük Notlar ve Günlük</h2>
+
+            <!-- GÜNLÜK NOTLAR GÖRÜNÜMÜ -->
+            <div id="daily-view" class="dashboard-grid">
+                <!-- SOL PANEL -->
+                <div class="left-panel">
+                    <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">✍ Not Ekle</h3>
+                    <div class="form-group">
+                        <label for="entry-date">Tarih Seçin:</label>
+                        <div class="date-nav-wrapper">
+                            <button class="date-nav-btn" onclick="changeDate(-1)" title="Bir Önceki Gün">◄ Geri</button>
+                            <input type="date" id="entry-date" onchange="loadEntries()">
+                            <button class="date-nav-btn" onclick="changeDate(1)" title="Bir Sonraki Gün">İleri ►</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="new-note-content">Not İçeriği:</label>
+                        <textarea id="new-note-content" placeholder="Güne dair küçük bir not yazın..."></textarea>
+                        <button onclick="addNote()" style="background-color: #10b981; margin-top: 10px;">+ Günlüğe Ekle</button>
+                    </div>
+                </div>
+
+                <!-- SAĞ PANEL -->
+                <div class="right-panel">
+                    <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">📌 Kaydedilen Notlar</h3>
+                    <div id="notes-container" class="notes-list">
+                        <!-- Not kartları -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SABİT NOTLAR GÖRÜNÜMÜ -->
+            <div id="fixed-view" class="dashboard-grid hidden">
+                <!-- SOL PANEL -->
+                <div class="left-panel">
+                    <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">📌 Sabit Not Ekle</h3>
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-top:0;">Bu notlar tarihten bağımsızdır ve her zaman burada kalır.</p>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="new-fixed-note-content">Not İçeriği:</label>
+                        <textarea id="new-fixed-note-content" placeholder="Hatırlanması gereken sabit bir bilgi, şifre veya kural yazın..."></textarea>
+                        <button onclick="addFixedNote()" class="fixed-btn" style="margin-top: 10px;">+ Sabit Not Ekle</button>
+                    </div>
+                </div>
+
+                <!-- SAĞ PANEL -->
+                <div class="right-panel">
+                    <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">🗂 Sabit Notlarım</h3>
+                    <div id="fixed-notes-container" class="notes-list">
+                        <!-- Sabit Not kartları -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ŞİFRE DEĞİŞTİRME EKRANI -->
+        <div id="change-pass-screen" class="hidden">
+            <h2>🔑 Şifre Değiştir</h2>
+            <div class="form-group">
+                <label for="old-pass">Mevcut Şifre:</label>
+                <input type="password" id="old-pass" placeholder="Mevcut şifreniz">
+            </div>
+            <div class="form-group">
+                <label for="new-pass">Yeni Şifre:</label>
+                <input type="password" id="new-pass" placeholder="Yeni şifreniz">
+            </div>
+            <button onclick="updatePassword()">Şifreyi Güncelle</button>
+            <button onclick="backToMain()" class="secondary-btn">İptal</button>
+            <div id="change-error" class="alert"></div>
+        </div>
+
+        <!-- ADMİN YÖNETİM PANELİ -->
+        <div id="admin-screen" class="hidden">
+            <div class="header-bar">
+                <span style="font-weight: bold; color: var(--primary-color); font-size: 1.05rem;">🛠 Admin Yönetim Paneli</span>
+                <button onclick="backToMain()" class="secondary-btn" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-top:0;">Günlüğe Dön</button>
+            </div>
+            <h3 style="color: #374151; margin-bottom: 1rem;">Tüm Kullanıcılar ve Notları</h3>
+            <div id="admin-users-list" style="display: flex; flex-direction: column; gap: 15px; max-height: 450px; overflow-y: auto; padding-right: 5px;">
+                <!-- Kullanıcılar buraya eklenecek -->
+            </div>
+        </div>
+    </div>
+
+    <!-- NOT DETAY MODALI -->
+    <div id="note-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>📖 Not Detayı</h3>
+            <div class="modal-body">
+                <p id="modal-text-content"></p>
+            </div>
+            <button class="modal-close-btn" onclick="closeNoteModal()">Kapat</button>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let isFixedViewActive = false;
+
+        window.onload = function() {
+            ensureAdminExists();
+            populateUserDatalist();
+            setupDatalistTrigger();
+        };
+
+        function getUsersData() {
+            let data = localStorage.getItem("journal_users_db");
+            if (!data) return {};
+            try {
+                return JSON.parse(data);
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveUsersData(db) {
+            localStorage.setItem("journal_users_db", JSON.stringify(db));
+        }
+
+        function ensureAdminExists() {
+            let db = getUsersData();
+            if (!db["admin"]) {
+                db["admin"] = {
+                    password: "admin",
+                    entries: {},
+                    fixedNotes: []
+                };
+                saveUsersData(db);
+            }
+        }
+
+        function populateUserDatalist() {
+            const datalist = document.getElementById("users-datalist");
+            datalist.innerHTML = '';
+            
+            let db = getUsersData();
+            for (let username in db) {
+                if (username === "admin") continue; 
+                let opt = document.createElement("option");
+                opt.value = username;
+                datalist.appendChild(opt);
+            }
+        }
+
+        function setupDatalistTrigger() {
+            const input = document.getElementById("login-user-input");
+            input.addEventListener("focus", function() {
+                let val = this.value;
+                this.value = '';
+                this.value = val;
+            });
+            input.addEventListener("click", function() {
+                let val = this.value;
+                this.value = '';
+                this.value = val;
+            });
+        }
+
+        function showLoginScreen() {
+            document.getElementById("main-container").classList.remove("wide-container");
+            document.getElementById("register-screen").classList.add("hidden");
+            document.getElementById("change-pass-screen").classList.add("hidden");
+            document.getElementById("admin-screen").classList.add("hidden");
+            document.getElementById("main-screen").classList.add("hidden");
+            document.getElementById("login-screen").classList.remove("hidden");
+            document.getElementById("login-error").innerText = "";
+            document.getElementById("login-pass").value = "";
+            document.getElementById("login-user-input").value = "";
+            ensureAdminExists();
+            populateUserDatalist();
+        }
+
+        function showRegisterScreen() {
+            document.getElementById("main-container").classList.remove("wide-container");
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("main-screen").classList.add("hidden");
+            document.getElementById("admin-screen").classList.add("hidden");
+            document.getElementById("reg-error").innerText = "";
+            document.getElementById("reg-user").value = "";
+            document.getElementById("reg-pass").value = "";
+            document.getElementById("register-screen").classList.remove("hidden");
+        }
+
+        function checkLoginEnter(event) {
+            if (event.key === "Enter") {
+                loginUser();
+            }
+        }
+
+        function registerUser() {
+            const user = document.getElementById("reg-user").value.trim();
+            const pass = document.getElementById("reg-pass").value;
+
+            if (!user || !pass) {
+                document.getElementById("reg-error").innerText = "Kullanıcı adı ve şifre boş olamaz!";
+                return;
+            }
+            if (user.toLowerCase() === "admin") {
+                document.getElementById("reg-error").innerText = "Bu kullanıcı adı kullanılamaz!";
+                return;
+            }
+
+            let db = getUsersData();
+            if (db[user]) {
+                document.getElementById("reg-error").innerText = "Bu kullanıcı adı zaten alınmış!";
+                return;
+            }
+
+            db[user] = {
+                password: pass,
+                entries: {},
+                fixedNotes: [] // Sabit notlar için alan oluşturuluyor
+            };
+            saveUsersData(db);
+
+            currentUser = user;
+            openMainScreen();
+        }
+
+        function loginUser() {
+            const user = document.getElementById("login-user-input").value.trim();
+            const pass = document.getElementById("login-pass").value;
+
+            if (!user) {
+                document.getElementById("login-error").innerText = "Lütfen bir kullanıcı adı girin veya seçin!";
+                return;
+            }
+
+            let db = getUsersData();
+            if (!db[user] || db[user].password !== pass) {
+                document.getElementById("login-error").innerText = "Hatalı şifre veya kullanıcı adı!";
+                return;
+            }
+
+            // Eski kullanıcılarda fixedNotes array'i yoksa oluştur
+            if (!db[user].fixedNotes) {
+                db[user].fixedNotes = [];
+                saveUsersData(db);
+            }
+
+            currentUser = user;
+            openMainScreen();
+        }
+
+        function openMainScreen() {
+            document.getElementById("main-container").classList.add("wide-container");
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("register-screen").classList.add("hidden");
+            document.getElementById("change-pass-screen").classList.add("hidden");
+            document.getElementById("admin-screen").classList.add("hidden");
+            document.getElementById("main-screen").classList.remove("hidden");
+
+            document.getElementById("welcome-msg").innerText = `👤 ${currentUser}`;
+
+            const adminBtn = document.getElementById("admin-panel-btn");
+            if (currentUser === "admin") {
+                adminBtn.classList.remove("hidden");
+            } else {
+                adminBtn.classList.add("hidden");
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("entry-date").value = today;
+            
+            // Varsayılan olarak günlük görünümüyle başlat
+            isFixedViewActive = false;
+            updateViewUI();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById("login-pass").value = "";
+            showLoginScreen();
+        }
+
+        /* --- GÖRÜNÜM DEĞİŞTİRME MANTIĞI (GÜNLÜK <-> SABİT) --- */
+        function toggleNotesView() {
+            isFixedViewActive = !isFixedViewActive;
+            updateViewUI();
+        }
+
+        function updateViewUI() {
+            const btn = document.getElementById("toggle-view-btn");
+            const title = document.getElementById("main-title");
+            
+            if (isFixedViewActive) {
+                document.getElementById("daily-view").classList.add("hidden");
+                document.getElementById("fixed-view").classList.remove("hidden");
+                btn.innerHTML = "📅 Günlük Notlar";
+                btn.style.backgroundColor = "#4f46e5"; // Maviye çevir
+                title.innerHTML = "📌 Sabit Notlarım";
+                loadFixedNotes();
+            } else {
+                document.getElementById("fixed-view").classList.add("hidden");
+                document.getElementById("daily-view").classList.remove("hidden");
+                btn.innerHTML = "📌 Sabit Notlar";
+                btn.style.backgroundColor = "var(--fixed-color)"; // Turuncuya çevir
+                title.innerHTML = "📖 Küçük Notlar ve Günlük";
+                loadEntries();
+            }
+        }
+
+        /* --- GÜNLÜK NOTLAR FONKSİYONLARI --- */
+        function changeDate(days) {
+            const dateInput = document.getElementById("entry-date");
+            let currentDateStr = dateInput.value;
+            let currentDate = currentDateStr ? new Date(currentDateStr) : new Date();
+            currentDate.setDate(currentDate.getDate() + days);
+            dateInput.value = currentDate.toISOString().split('T')[0];
+            loadEntries();
+        }
+
+        function loadEntries() {
+            let dateStr = document.getElementById("entry-date").value;
+            if (!dateStr) {
+                dateStr = new Date().toISOString().split('T')[0];
+                document.getElementById("entry-date").value = dateStr;
+            }
+
+            const container = document.getElementById("notes-container");
+            container.innerHTML = "";
+            if (!currentUser) return;
+
+            let db = getUsersData();
+            let userEntries = db[currentUser].entries || {};
+            let notesList = userEntries[dateStr];
+
+            if (!notesList || notesList.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic; margin-top: auto; margin-bottom: auto; display:block;">Bu tarihe ait henüz küçük bir not eklenmemiş.</p>';
+                return;
+            }
+
+            notesList.forEach((noteObj, index) => {
+                createNoteCardElement(container, noteObj, index, false);
+            });
+        }
+
+        function addNote() {
+            let dateStr = document.getElementById("entry-date").value;
+            const noteText = document.getElementById("new-note-content").value.trim();
+
+            if (!noteText) {
+                alert("Boş not ekleyemezsiniz!");
+                return;
+            }
+
+            let db = getUsersData();
+            if (!db[currentUser].entries[dateStr]) {
+                db[currentUser].entries[dateStr] = [];
+            }
+
+            db[currentUser].entries[dateStr].push({ text: noteText, completed: false });
+            saveUsersData(db);
+
+            document.getElementById("new-note-content").value = "";
+            loadEntries();
+        }
+
+        /* --- SABİT NOTLAR FONKSİYONLARI --- */
+        function loadFixedNotes() {
+            const container = document.getElementById("fixed-notes-container");
+            container.innerHTML = "";
+            if (!currentUser) return;
+
+            let db = getUsersData();
+            let fixedList = db[currentUser].fixedNotes || [];
+
+            if (fixedList.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic; margin-top: auto; margin-bottom: auto; display:block;">Henüz hiç sabit notunuz bulunmuyor.</p>';
+                return;
+            }
+
+            fixedList.forEach((noteObj, index) => {
+                createNoteCardElement(container, noteObj, index, true);
+            });
+        }
+
+        function addFixedNote() {
+            const noteText = document.getElementById("new-fixed-note-content").value.trim();
+
+            if (!noteText) {
+                alert("Boş not ekleyemezsiniz!");
+                return;
+            }
+
+            let db = getUsersData();
+            if (!db[currentUser].fixedNotes) {
+                db[currentUser].fixedNotes = [];
+            }
+
+            db[currentUser].fixedNotes.push({ text: noteText, completed: false });
+            saveUsersData(db);
+
+            document.getElementById("new-fixed-note-content").value = "";
+            loadFixedNotes();
+        }
+
+        /* --- ORTAK NOT OLUŞTURMA & SİLME FONKSİYONLARI --- */
+        function createNoteCardElement(container, noteObj, index, isFixed) {
+            let card = document.createElement("div");
+            card.className = "note-card";
+            if (isFixed) {
+                card.classList.add("fixed");
+            }
+            if (noteObj.completed) {
+                card.classList.add("completed");
+            }
+            
+            let wrapper = document.createElement("div");
+            wrapper.className = "note-content-wrapper";
+
+            let checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "note-checkbox";
+            checkbox.checked = !!noteObj.completed;
+            checkbox.title = "Yapıldı olarak işaretle";
+            checkbox.onchange = function() {
+                toggleNoteComplete(index, isFixed);
+            };
+
+            let p = document.createElement("p");
+            p.textContent = noteObj.text;
+            
+            wrapper.appendChild(checkbox);
+            wrapper.appendChild(p);
+
+            if (noteObj.text.length > 100 || noteObj.text.includes('\n')) {
+                let toggleBtn = document.createElement("button");
+                toggleBtn.className = "toggle-expand-btn";
+                toggleBtn.textContent = "Devamını Oku...";
+                toggleBtn.onclick = function() {
+                    openNoteModal(noteObj.text);
+                };
+                wrapper.appendChild(toggleBtn);
+            }
+
+            let delBtn = document.createElement("button");
+            delBtn.className = "delete-note-btn";
+            delBtn.innerHTML = "&times;";
+            delBtn.title = "Notu Sil";
+            delBtn.onclick = function() {
+                deleteNote(index, isFixed);
+            };
+
+            card.appendChild(wrapper);
+            card.appendChild(delBtn);
+            container.appendChild(card);
+        }
+
+        function toggleNoteComplete(index, isFixed) {
+            let db = getUsersData();
+            if (isFixed) {
+                db[currentUser].fixedNotes[index].completed = !db[currentUser].fixedNotes[index].completed;
+                saveUsersData(db);
+                loadFixedNotes();
+            } else {
+                const dateStr = document.getElementById("entry-date").value;
+                db[currentUser].entries[dateStr][index].completed = !db[currentUser].entries[dateStr][index].completed;
+                saveUsersData(db);
+                loadEntries();
+            }
+        }
+
+        function deleteNote(index, isFixed) {
+            let db = getUsersData();
+            if (isFixed) {
+                db[currentUser].fixedNotes.splice(index, 1);
+                saveUsersData(db);
+                loadFixedNotes();
+            } else {
+                const dateStr = document.getElementById("entry-date").value;
+                let notesList = db[currentUser].entries[dateStr];
+                notesList.splice(index, 1);
+                if (notesList.length === 0) {
+                    delete db[currentUser].entries[dateStr];
+                }
+                saveUsersData(db);
+                loadEntries();
+            }
+        }
+
+        function openNoteModal(text) {
+            document.getElementById("modal-text-content").textContent = text;
+            document.getElementById("note-modal").classList.remove("hidden");
+        }
+
+        function closeNoteModal() {
+            document.getElementById("note-modal").classList.add("hidden");
+        }
+
+        /* --- DİĞER KULLANICI AYARLARI --- */
+        function showChangePassModal() {
+            document.getElementById("main-container").classList.remove("wide-container");
+            document.getElementById("main-screen").classList.add("hidden");
+            document.getElementById("admin-screen").classList.add("hidden");
+            document.getElementById("old-pass").value = "";
+            document.getElementById("new-pass").value = "";
+            document.getElementById("change-error").innerText = "";
+            document.getElementById("change-pass-screen").classList.remove("hidden");
+        }
+
+        function backToMain() {
+            document.getElementById("main-container").classList.add("wide-container");
+            document.getElementById("change-pass-screen").classList.add("hidden");
+            document.getElementById("admin-screen").classList.add("hidden");
+            document.getElementById("main-screen").classList.remove("hidden");
+            updateViewUI();
+        }
+
+        function updatePassword() {
+            const oldPass = document.getElementById("old-pass").value;
+            const newPass = document.getElementById("new-pass").value;
+            let db = getUsersData();
+
+            if (!db[currentUser] || db[currentUser].password !== oldPass) {
+                document.getElementById("change-error").innerText = "Mevcut şifreniz yanlış!";
+                return;
+            }
+            if (!newPass) {
+                document.getElementById("change-error").innerText = "Yeni şifre boş olamaz!";
+                return;
+            }
+
+            db[currentUser].password = newPass;
+            saveUsersData(db);
+
+            alert("Şifreniz başarıyla değiştirildi!");
+            backToMain();
+        }
+
+        /* --- ADMİN PANEL FONKSİYONLARI --- */
+        function showAdminPanel() {
+            document.getElementById("main-container").classList.add("wide-container");
+            document.getElementById("main-screen").classList.add("hidden");
+            
+            const listContainer = document.getElementById("admin-users-list");
+            listContainer.innerHTML = "";
+
+            let db = getUsersData();
+            let userCount = 0;
+
+            for (let username in db) {
+                if (username === "admin") continue; 
+                userCount++;
+
+                let userCard = document.createElement("div");
+                userCard.style.cssText = "background: #f9fafb; border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
+
+                let infoDiv = document.createElement("div");
+                let title = document.createElement("h4");
+                title.style.margin = "0 0 5px 0";
+                title.style.color = "#1f2937";
+                title.textContent = `👤 ${username}`;
+
+                let entries = db[username].entries || {};
+                let fixedCount = db[username].fixedNotes ? db[username].fixedNotes.length : 0;
+                let totalDays = Object.keys(entries).length;
+
+                let subText = document.createElement("p");
+                subText.style.margin = "0";
+                subText.style.fontSize = "0.85rem";
+                subText.style.color = "#6b7280";
+                subText.textContent = `Günlük Kaydı: ${totalDays} gün | Sabit Not: ${fixedCount}`;
+
+                infoDiv.appendChild(title);
+                infoDiv.appendChild(subText);
+
+                let btnGroup = document.createElement("div");
+                btnGroup.style.display = "flex";
+                btnGroup.style.gap = "8px";
+
+                let viewBtn = document.createElement("button");
+                viewBtn.textContent = "Notlarını Gör";
+                viewBtn.style.cssText = "background-color: #4f46e5; padding: 0.5rem 1rem; font-size: 0.85rem; width: auto; margin:0;";
+                viewBtn.onclick = function() {
+                    adminViewUserNotes(username);
+                };
+
+                let delUserBtn = document.createElement("button");
+                delUserBtn.textContent = "Kullanıcıyı Sil";
+                delUserBtn.style.cssText = "background-color: #dc2626; padding: 0.5rem 1rem; font-size: 0.85rem; width: auto; margin:0;";
+                delUserBtn.onclick = function() {
+                    adminDeleteUser(username);
+                };
+
+                btnGroup.appendChild(viewBtn);
+                btnGroup.appendChild(delUserBtn);
+
+                userCard.appendChild(infoDiv);
+                userCard.appendChild(btnGroup);
+                listContainer.appendChild(userCard);
+            }
+
+            if (userCount === 0) {
+                listContainer.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic;">Sistemde kayıtlı başka kullanıcı bulunmuyor.</p>';
+            }
+
+            document.getElementById("admin-screen").classList.remove("hidden");
+        }
+
+        function adminViewUserNotes(username) {
+            currentUser = username;
+            document.getElementById("admin-screen").classList.add("hidden");
+            document.getElementById("main-screen").classList.remove("hidden");
+            document.getElementById("welcome-msg").innerHTML = `👤 ${username} <span style="font-size:0.8rem; background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px;">Admin Modu</span>`;
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("entry-date").value = today;
+            
+            isFixedViewActive = false;
+            updateViewUI();
+        }
+
+        function adminDeleteUser(username) {
+            if (confirm(`"${username}" adlı kullanıcıyı ve tüm notlarını kalıcı olarak silmek istediğinize emin misiniz?`)) {
+                let db = getUsersData();
+                delete db[username];
+                saveUsersData(db);
+                showAdminPanel();
+            }
+        }
+    </script>
+</body>
+</html>

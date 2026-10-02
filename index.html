@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eczane ve Not Yönetim Portalı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<!-- Ana Sayfaya Dönüş Butonu -->
+<div class="fixed top-4 left-4 z-50">
+    <a href="index.html" class="inline-flex items-center gap-2 bg-white/90 hover:bg-white text-slate-700 font-medium px-4 py-2 rounded-xl shadow-md border border-slate-200 transition-all duration-200 hover:shadow-lg backdrop-blur-sm text-sm">
+        <i class="fa-solid fa-house text-emerald-600"></i>
+        <span>Ana Sayfa</span>
+    </a>
+</div>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Üst Bilgi / Header -->
+    <header class="bg-emerald-700 text-white shadow-md">
+        <div class="max-w-4xl mx-auto px-6 py-6 text-center">
+            <div class="inline-flex bg-white text-emerald-700 p-3 rounded-2xl shadow-lg mb-3">
+                <i class="fa-solid fa-house-medical text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold tracking-wide">Eczane & Günlük Portalı</h1>
+            <p class="text-emerald-100 text-sm mt-1">Yönetim ve Takip Sistemleri Ana Sayfası</p>
+        </div>
+    </header>
+
+    <!-- Ana İçerik / Kartlar -->
+    <main class="max-w-4xl mx-auto px-6 py-12 w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- SİPARİŞ SİTESİ KARTI -->
+        <a href="SİPARİŞ.html" class="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+            <div>
+                <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-emerald-700 transition-colors">Eczane Akıllı Sipariş</h2>
+                <p class="text-slate-500 text-sm leading-relaxed">
+                    Depo siparişleri, yok listeleri, itriyat yönetimi, Excel entegrasyonu ve geçmiş sipariş takibi.
+                </p>
+            </div>
+            <div class="mt-8 flex items-center text-emerald-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
+                <span>Sisteme Git</span>
+                <i class="fa-solid fa-arrow-right ml-2"></i>
+            </div>
+        </a>
+
+        <!-- NOT DEFTERİ SİTESİ KARTI -->
+        <a href="NOT DEFTERİ.HTML" class="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+            <div>
+                <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">Notlar ve Günlük</h2>
+                <p class="text-slate-500 text-sm leading-relaxed">
+                    Çoklu kullanıcı desteği, günlük not alma, sabit hatırlatıcılar ve admin yönetim paneli.
+                </p>
+            </div>
+            <div class="mt-8 flex items-center text-indigo-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
+                <span>Sisteme Git</span>
+                <i class="fa-solid fa-arrow-right ml-2"></i>
+            </div>
+        </a>
+
+    </main>
+
+    <!-- Alt Bilgi / Footer -->
+    <footer class="text-center py-6 text-slate-400 text-xs">
+        <p>&copy; 2026 - Tüm Hakları Saklıdır.</p>
+    </footer>
+
+</body>
+</html>
