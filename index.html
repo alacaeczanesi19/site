@@ -7,15 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
-<!-- Ana Sayfaya Dönüş Butonu -->
-<div class="fixed top-4 left-4 z-50">
-    <a href="index.html" class="inline-flex items-center gap-2 bg-white/90 hover:bg-white text-slate-700 font-medium px-4 py-2 rounded-xl shadow-md border border-slate-200 transition-all duration-200 hover:shadow-lg backdrop-blur-sm text-sm">
-        <i class="fa-solid fa-house text-emerald-600"></i>
-        <span>Ana Sayfa</span>
-    </a>
-</div>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Ana Sayfaya Dönüş Butonu -->
+    <div class="fixed top-4 left-4 z-50">
+        <a href="index.html" class="inline-flex items-center gap-2 bg-white/90 hover:bg-white text-slate-700 font-medium px-4 py-2 rounded-xl shadow-md border border-slate-200 transition-all duration-200 hover:shadow-lg backdrop-blur-sm text-sm">
+            <i class="fa-solid fa-house text-emerald-600"></i>
+            <span>Ana Sayfa</span>
+        </a>
+    </div>
 
     <!-- Üst Bilgi / Header -->
     <header class="bg-emerald-700 text-white shadow-md">
@@ -72,5 +72,111 @@
         <p>&copy; 2026 - Tüm Hakları Saklıdır.</p>
     </footer>
 
+    <!-- SİTE İÇİ CANLI SOHBET WİDGET (ENTEGRE EDİLDİ) -->
+    <div id="chat-container" class="fixed bottom-6 right-6 z-50 font-sans">
+        <!-- Sohbeti Açma/Kapama Butonu -->
+        <button id="chat-toggle-btn" onclick="toggleChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 hover:scale-105">
+            <i class="fa-solid fa-comments text-lg"></i>
+            <span>Sohbet Et</span>
+        </button>
+
+        <!-- Sohbet Kutusu -->
+        <div id="chat-box" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 h-[450px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 transform scale-95 opacity-0 origin-bottom-right">
+            <!-- Sohbet Header -->
+            <div class="bg-emerald-700 text-white px-4 py-3 flex justify-between items-center font-semibold">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Canlı Sohbet Alanı</span>
+                </div>
+                <button onclick="toggleChat()" class="text-emerald-100 hover:text-white transition-colors text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Mesajların Listelendiği Alan -->
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3 text-sm">
+                <div class="bg-slate-200 text-slate-700 text-xs text-center py-1.5 px-3 rounded-lg self-center max-w-xs">
+                    Sohbet odasına hoş geldiniz! Lütfen saygılı bir dil kullanın.
+                </div>
+            </div>
+
+            <!-- Mesaj Gönderme Alanı -->
+            <div class="p-3 bg-white border-t border-slate-200 flex flex-col gap-2">
+                <input type="text" id="chat-user" placeholder="Adınız..." class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." onkeypress="checkEnter(event)" class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
+                    <button onclick="sendMessage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sohbet Mantığı (JavaScript) -->
+    <script>
+        function toggleChat() {
+            const chatBox = document.getElementById('chat-box');
+            const isHidden = chatBox.classList.contains('hidden');
+            
+            if (isHidden) {
+                chatBox.classList.remove('hidden');
+                setTimeout(() => {
+                    chatBox.classList.remove('scale-95', 'opacity-0');
+                    chatBox.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                document.getElementById('chat-input').focus();
+            } else {
+                chatBox.classList.remove('scale-100', 'opacity-100');
+                chatBox.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    chatBox.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('chat-input');
+            const userNameInput = document.getElementById('chat-user');
+            const messagesContainer = document.getElementById('chat-messages');
+
+            const text = userInput.value.trim();
+            const name = userNameInput.value.trim() || "Misafir";
+
+            if (text === "") return;
+
+            // Yeni mesaj balonu oluşturma
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('flex', 'flex-col', 'max-w-[85%]', 'self-start');
+            
+            messageDiv.innerHTML = `
+                <span class="text-[11px] font-bold text-emerald-700 ml-1 mb-0.5">${escapeHtml(name)}</span>
+                <div class="bg-emerald-50 border border-emerald-100 text-slate-700 px-3 py-2 rounded-xl rounded-tl-sm text-sm break-words shadow-sm">
+                    ${escapeHtml(text)}
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            
+            // Girdiyi temizle ve en alta kaydır
+            userInput.value = "";
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
 </body>
 </html>
