@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Çoklu Kullanıcılı Küçük Notlar Günlüğü</title>
+    <title>Çoklu Kullanıcılı Küçük Notlar Günlüğü - Firebase</title>
+    
+    <!-- Firebase SDK'ları (Compat v9) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+
     <style>
         :root {
             --primary-color: #4f46e5;
@@ -233,11 +239,6 @@
             border-left: 6px solid #0284c7;
         }
 
-        .note-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-        }
-
         .note-card.completed {
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
             border-color: #34d399;
@@ -279,7 +280,6 @@
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
-            transition: color 0.2s;
         }
         
         .note-card.fixed p {
@@ -298,11 +298,6 @@
             margin-left: 32px;
             display: inline-block;
             text-decoration: underline;
-            transition: color 0.2s;
-        }
-
-        .toggle-expand-btn:hover {
-            color: #422006;
         }
 
         .delete-note-btn {
@@ -319,11 +314,9 @@
             width: auto;
             margin: 0;
             opacity: 0.7;
-            transition: opacity 0.2s;
         }
         .delete-note-btn:hover {
             opacity: 1;
-            color: #991b1b;
         }
 
         .modal-overlay {
@@ -349,13 +342,6 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
         }
 
         .modal-body {
@@ -363,15 +349,6 @@
             max-height: 50vh;
             margin-bottom: 1.5rem;
             padding-right: 5px;
-        }
-
-        .modal-content p {
-            white-space: pre-wrap;
-            word-break: break-word;
-            line-height: 1.6;
-            font-size: 1rem;
-            color: #1f2937;
-            margin: 0;
         }
 
         .modal-close-btn {
@@ -383,12 +360,6 @@
             cursor: pointer;
             font-weight: 600;
             width: 100%;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .modal-close-btn:hover {
-            background-color: var(--primary-hover);
         }
 
         .alert {
@@ -409,23 +380,31 @@
             cursor: pointer;
             text-decoration: underline;
         }
+        
+        /* Yükleniyor Göstergesi */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
-<!-- Garanti Ana Sayfa Butonu -->
-<div style="position: fixed; top: 20px; left: 20px; z-index: 9999;">
-    <a href="index.html" style="display: inline-flex; align-items: center; gap: 8px; background-color: #ffffff; color: #334155; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-family: sans-serif; font-size: 14px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e2e8f0; transition: all 0.2s;">
-        <svg style="width: 16px; height: 16px; fill: #059669;" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        Ana Sayfa
-    </a>
-</div>
-    <div class="container" id="main-container">
+
+    <div id="loading-overlay">Firebase'e Bağlanıyor...</div>
+
+    <div class="container hidden" id="main-container">
         <!-- GİRİŞ EKRANI -->
         <div id="login-screen">
             <h2>🔒 Kullanıcı Girişi</h2>
             <div class="form-group">
                 <label for="login-user-input">Kullanıcı Adı:</label>
-                <input type="text" id="login-user-input" list="users-datalist" placeholder="Kullanıcı adınızı yazın veya seçin" autocomplete="off" onfocus="this.value='';" onclick="this.value='';">
+                <input type="text" id="login-user-input" list="users-datalist" placeholder="Kullanıcı adınızı yazın veya seçin" autocomplete="off">
                 <datalist id="users-datalist"></datalist>
             </div>
             <div class="form-group">
@@ -455,7 +434,7 @@
             <div id="reg-error" class="alert"></div>
         </div>
 
-        <!-- ANA EKRAN (GÜNLÜK & SABİT NOTLAR) -->
+        <!-- ANA EKRAN -->
         <div id="main-screen" class="hidden">
             <div class="header-bar">
                 <span id="welcome-msg" style="font-weight: bold; color: var(--primary-color); font-size: 1.05rem;"></span>
@@ -471,18 +450,16 @@
 
             <!-- GÜNLÜK NOTLAR GÖRÜNÜMÜ -->
             <div id="daily-view" class="dashboard-grid">
-                <!-- SOL PANEL -->
                 <div class="left-panel">
                     <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">✍ Not Ekle</h3>
                     <div class="form-group">
                         <label for="entry-date">Tarih Seçin:</label>
                         <div class="date-nav-wrapper">
-                            <button class="date-nav-btn" onclick="changeDate(-1)" title="Bir Önceki Gün">◄ Geri</button>
+                            <button class="date-nav-btn" onclick="changeDate(-1)">◄ Geri</button>
                             <input type="date" id="entry-date" onchange="loadEntries()">
-                            <button class="date-nav-btn" onclick="changeDate(1)" title="Bir Sonraki Gün">İleri ►</button>
+                            <button class="date-nav-btn" onclick="changeDate(1)">İleri ►</button>
                         </div>
                     </div>
-
                     <div class="form-group" style="margin-top: 15px;">
                         <label for="new-note-content">Not İçeriği:</label>
                         <textarea id="new-note-content" placeholder="Güne dair küçük bir not yazın..."></textarea>
@@ -490,37 +467,27 @@
                     </div>
                 </div>
 
-                <!-- SAĞ PANEL -->
                 <div class="right-panel">
                     <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">📌 Kaydedilen Notlar</h3>
-                    <div id="notes-container" class="notes-list">
-                        <!-- Not kartları -->
-                    </div>
+                    <div id="notes-container" class="notes-list"></div>
                 </div>
             </div>
 
             <!-- SABİT NOTLAR GÖRÜNÜMÜ -->
             <div id="fixed-view" class="dashboard-grid hidden">
-                <!-- SOL PANEL -->
                 <div class="left-panel">
                     <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">📌 Sabit Not Ekle</h3>
-                    <p style="font-size: 0.85rem; color: #6b7280; margin-top:0;">Bu notlar tarihten bağımsızdır ve her zaman burada kalır.</p>
                     <div class="form-group" style="margin-top: 15px;">
                         <label for="new-fixed-note-content">Not İçeriği:</label>
-                        <textarea id="new-fixed-note-content" placeholder="Hatırlanması gereken sabit bir bilgi, şifre veya kural yazın..."></textarea>
+                        <textarea id="new-fixed-note-content" placeholder="Hatırlanması gereken sabit bir bilgi..."></textarea>
                         <button onclick="addFixedNote()" class="fixed-btn" style="margin-top: 10px;">+ Sabit Not Ekle</button>
                     </div>
                 </div>
-
-                <!-- SAĞ PANEL -->
                 <div class="right-panel">
                     <h3 style="margin-top: 0; color: #374151; font-size: 1.1rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem; margin-bottom: 1rem;">🗂 Sabit Notlarım</h3>
-                    <div id="fixed-notes-container" class="notes-list">
-                        <!-- Sabit Not kartları -->
-                    </div>
+                    <div id="fixed-notes-container" class="notes-list"></div>
                 </div>
             </div>
-
         </div>
 
         <!-- ŞİFRE DEĞİŞTİRME EKRANI -->
@@ -528,11 +495,11 @@
             <h2>🔑 Şifre Değiştir</h2>
             <div class="form-group">
                 <label for="old-pass">Mevcut Şifre:</label>
-                <input type="password" id="old-pass" placeholder="Mevcut şifreniz">
+                <input type="password" id="old-pass">
             </div>
             <div class="form-group">
                 <label for="new-pass">Yeni Şifre:</label>
-                <input type="password" id="new-pass" placeholder="Yeni şifreniz">
+                <input type="password" id="new-pass">
             </div>
             <button onclick="updatePassword()">Şifreyi Güncelle</button>
             <button onclick="backToMain()" class="secondary-btn">İptal</button>
@@ -542,13 +509,10 @@
         <!-- ADMİN YÖNETİM PANELİ -->
         <div id="admin-screen" class="hidden">
             <div class="header-bar">
-                <span style="font-weight: bold; color: var(--primary-color); font-size: 1.05rem;">🛠 Admin Yönetim Paneli</span>
-                <button onclick="backToMain()" class="secondary-btn" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-top:0;">Günlüğe Dön</button>
+                <span style="font-weight: bold; color: var(--primary-color);">🛠 Admin Yönetim Paneli</span>
+                <button onclick="backToMain()" class="secondary-btn" style="width: auto; padding: 0.4rem 0.8rem; margin:0;">Günlüğe Dön</button>
             </div>
-            <h3 style="color: #374151; margin-bottom: 1rem;">Tüm Kullanıcılar ve Notları</h3>
-            <div id="admin-users-list" style="display: flex; flex-direction: column; gap: 15px; max-height: 450px; overflow-y: auto; padding-right: 5px;">
-                <!-- Kullanıcılar buraya eklenecek -->
-            </div>
+            <div id="admin-users-list" style="display: flex; flex-direction: column; gap: 15px; max-height: 450px; overflow-y: auto;"></div>
         </div>
     </div>
 
@@ -564,66 +528,63 @@
     </div>
 
     <script>
-        let currentUser = null;
-        let isFixedViewActive = false;
-
-        window.onload = function() {
-            ensureAdminExists();
-            populateUserDatalist();
-            setupDatalistTrigger();
+        // Firebase Yapılandırması (Sizin sağladığınız bilgiler)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYQZEYws-2H_wNMLjJ49xw0FpvOOWX3k4",
+            authDomain: "alacaeczanesi.firebaseapp.com",
+            databaseURL: "https://alacaeczanesi-default-rtdb.firebaseio.com",
+            projectId: "alacaeczanesi",
+            storageBucket: "alacaeczanesi.firebasestorage.app",
+            messagingSenderId: "225106853473",
+            appId: "1:225106853473:web:46b0addd19cb09e59e7420",
+            measurementId: "G-KQS93JMS4P"
         };
 
-        function getUsersData() {
-            let data = localStorage.getItem("journal_users_db");
-            if (!data) return {};
-            try {
-                return JSON.parse(data);
-            } catch (e) {
-                return {};
-            }
-        }
+        // Firebase Başlatma
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-        function saveUsersData(db) {
-            localStorage.setItem("journal_users_db", JSON.stringify(db));
-        }
+        let currentUser = null;
+        let isFixedViewActive = false;
+        let usersCache = {};
 
-        function ensureAdminExists() {
-            let db = getUsersData();
-            if (!db["admin"]) {
-                db["admin"] = {
-                    password: "admin",
-                    entries: {},
-                    fixedNotes: []
-                };
-                saveUsersData(db);
-            }
-        }
+        // Uygulama açılışında verileri Realtime Database'den çek
+        window.onload = function() {
+            database.ref("journal_users").on("value", (snapshot) => {
+                usersCache = snapshot.val() || {};
+                
+                // Admin kullanıcısı yoksa otomatik oluştur
+                if (!usersCache["admin"]) {
+                    database.ref("journal_users/admin").set({
+                        password: "admin",
+                        entries: {},
+                        fixedNotes: []
+                    });
+                }
+
+                populateUserDatalist();
+                document.getElementById("loading-overlay").style.display = "none";
+                document.getElementById("main-container").classList.remove("hidden");
+                
+                // Eğer kullanıcı zaten giriş yapmışsa ekranı güncelle
+                if (currentUser && usersCache[currentUser]) {
+                    if (isFixedViewActive) loadFixedNotes();
+                    else loadEntries();
+                } else if (currentUser && !usersCache[currentUser]) {
+                    logout(); // Kullanıcı silindiyse oturumu kapat
+                }
+            });
+        };
 
         function populateUserDatalist() {
             const datalist = document.getElementById("users-datalist");
             datalist.innerHTML = '';
-            
-            let db = getUsersData();
-            for (let username in db) {
+            for (let username in usersCache) {
                 if (username === "admin") continue; 
                 let opt = document.createElement("option");
                 opt.value = username;
                 datalist.appendChild(opt);
             }
-        }
-
-        function setupDatalistTrigger() {
-            const input = document.getElementById("login-user-input");
-            input.addEventListener("focus", function() {
-                let val = this.value;
-                this.value = '';
-                this.value = val;
-            });
-            input.addEventListener("click", function() {
-                let val = this.value;
-                this.value = '';
-                this.value = val;
-            });
         }
 
         function showLoginScreen() {
@@ -636,8 +597,6 @@
             document.getElementById("login-error").innerText = "";
             document.getElementById("login-pass").value = "";
             document.getElementById("login-user-input").value = "";
-            ensureAdminExists();
-            populateUserDatalist();
         }
 
         function showRegisterScreen() {
@@ -652,9 +611,7 @@
         }
 
         function checkLoginEnter(event) {
-            if (event.key === "Enter") {
-                loginUser();
-            }
+            if (event.key === "Enter") loginUser();
         }
 
         function registerUser() {
@@ -669,22 +626,25 @@
                 document.getElementById("reg-error").innerText = "Bu kullanıcı adı kullanılamaz!";
                 return;
             }
-
-            let db = getUsersData();
-            if (db[user]) {
+            if (usersCache[user]) {
                 document.getElementById("reg-error").innerText = "Bu kullanıcı adı zaten alınmış!";
                 return;
             }
 
-            db[user] = {
+            const newUserObj = {
                 password: pass,
                 entries: {},
-                fixedNotes: [] // Sabit notlar için alan oluşturuluyor
+                fixedNotes: []
             };
-            saveUsersData(db);
 
-            currentUser = user;
-            openMainScreen();
+            database.ref("journal_users/" + user).set(newUserObj, (error) => {
+                if (error) {
+                    alert("Kayıt sırasında hata oluştu!");
+                } else {
+                    currentUser = user;
+                    openMainScreen();
+                }
+            });
         }
 
         function loginUser() {
@@ -692,20 +652,13 @@
             const pass = document.getElementById("login-pass").value;
 
             if (!user) {
-                document.getElementById("login-error").innerText = "Lütfen bir kullanıcı adı girin veya seçin!";
+                document.getElementById("login-error").innerText = "Lütfen kullanıcı adı girin!";
                 return;
             }
 
-            let db = getUsersData();
-            if (!db[user] || db[user].password !== pass) {
+            if (!usersCache[user] || usersCache[user].password !== pass) {
                 document.getElementById("login-error").innerText = "Hatalı şifre veya kullanıcı adı!";
                 return;
-            }
-
-            // Eski kullanıcılarda fixedNotes array'i yoksa oluştur
-            if (!db[user].fixedNotes) {
-                db[user].fixedNotes = [];
-                saveUsersData(db);
             }
 
             currentUser = user;
@@ -732,7 +685,6 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById("entry-date").value = today;
             
-            // Varsayılan olarak günlük görünümüyle başlat
             isFixedViewActive = false;
             updateViewUI();
         }
@@ -743,7 +695,6 @@
             showLoginScreen();
         }
 
-        /* --- GÖRÜNÜM DEĞİŞTİRME MANTIĞI (GÜNLÜK <-> SABİT) --- */
         function toggleNotesView() {
             isFixedViewActive = !isFixedViewActive;
             updateViewUI();
@@ -757,24 +708,22 @@
                 document.getElementById("daily-view").classList.add("hidden");
                 document.getElementById("fixed-view").classList.remove("hidden");
                 btn.innerHTML = "📅 Günlük Notlar";
-                btn.style.backgroundColor = "#4f46e5"; // Maviye çevir
+                btn.style.backgroundColor = "#4f46e5";
                 title.innerHTML = "📌 Sabit Notlarım";
                 loadFixedNotes();
             } else {
                 document.getElementById("fixed-view").classList.add("hidden");
                 document.getElementById("daily-view").classList.remove("hidden");
                 btn.innerHTML = "📌 Sabit Notlar";
-                btn.style.backgroundColor = "var(--fixed-color)"; // Turuncuya çevir
+                btn.style.backgroundColor = "var(--fixed-color)";
                 title.innerHTML = "📖 Küçük Notlar ve Günlük";
                 loadEntries();
             }
         }
 
-        /* --- GÜNLÜK NOTLAR FONKSİYONLARI --- */
         function changeDate(days) {
             const dateInput = document.getElementById("entry-date");
-            let currentDateStr = dateInput.value;
-            let currentDate = currentDateStr ? new Date(currentDateStr) : new Date();
+            let currentDate = dateInput.value ? new Date(dateInput.value) : new Date();
             currentDate.setDate(currentDate.getDate() + days);
             dateInput.value = currentDate.toISOString().split('T')[0];
             loadEntries();
@@ -789,19 +738,18 @@
 
             const container = document.getElementById("notes-container");
             container.innerHTML = "";
-            if (!currentUser) return;
+            if (!currentUser || !usersCache[currentUser]) return;
 
-            let db = getUsersData();
-            let userEntries = db[currentUser].entries || {};
+            let userEntries = usersCache[currentUser].entries || {};
             let notesList = userEntries[dateStr];
 
             if (!notesList || notesList.length === 0) {
-                container.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic; margin-top: auto; margin-bottom: auto; display:block;">Bu tarihe ait henüz küçük bir not eklenmemiş.</p>';
+                container.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic; margin: auto;">Bu tarihe ait not yok.</p>';
                 return;
             }
 
             notesList.forEach((noteObj, index) => {
-                createNoteCardElement(container, noteObj, index, false);
+                if(noteObj) createNoteCardElement(container, noteObj, index, false);
             });
         }
 
@@ -814,34 +762,32 @@
                 return;
             }
 
-            let db = getUsersData();
-            if (!db[currentUser].entries[dateStr]) {
-                db[currentUser].entries[dateStr] = [];
-            }
+            let userObj = usersCache[currentUser];
+            if (!userObj.entries) userObj.entries = {};
+            if (!userObj.entries[dateStr]) userObj.entries[dateStr] = [];
 
-            db[currentUser].entries[dateStr].push({ text: noteText, completed: false });
-            saveUsersData(db);
+            userObj.entries[dateStr].push({ text: noteText, completed: false });
 
-            document.getElementById("new-note-content").value = "";
-            loadEntries();
+            database.ref(`journal_users/${currentUser}`).set(userObj, () => {
+                document.getElementById("new-note-content").value = "";
+                loadEntries();
+            });
         }
 
-        /* --- SABİT NOTLAR FONKSİYONLARI --- */
         function loadFixedNotes() {
             const container = document.getElementById("fixed-notes-container");
             container.innerHTML = "";
-            if (!currentUser) return;
+            if (!currentUser || !usersCache[currentUser]) return;
 
-            let db = getUsersData();
-            let fixedList = db[currentUser].fixedNotes || [];
+            let fixedList = usersCache[currentUser].fixedNotes || [];
 
             if (fixedList.length === 0) {
-                container.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic; margin-top: auto; margin-bottom: auto; display:block;">Henüz hiç sabit notunuz bulunmuyor.</p>';
+                container.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic; margin: auto;">Henüz sabit notunuz yok.</p>';
                 return;
             }
 
             fixedList.forEach((noteObj, index) => {
-                createNoteCardElement(container, noteObj, index, true);
+                if(noteObj) createNoteCardElement(container, noteObj, index, true);
             });
         }
 
@@ -853,28 +799,22 @@
                 return;
             }
 
-            let db = getUsersData();
-            if (!db[currentUser].fixedNotes) {
-                db[currentUser].fixedNotes = [];
-            }
+            let userObj = usersCache[currentUser];
+            if (!userObj.fixedNotes) userObj.fixedNotes = [];
 
-            db[currentUser].fixedNotes.push({ text: noteText, completed: false });
-            saveUsersData(db);
+            userObj.fixedNotes.push({ text: noteText, completed: false });
 
-            document.getElementById("new-fixed-note-content").value = "";
-            loadFixedNotes();
+            database.ref(`journal_users/${currentUser}`).set(userObj, () => {
+                document.getElementById("new-fixed-note-content").value = "";
+                loadFixedNotes();
+            });
         }
 
-        /* --- ORTAK NOT OLUŞTURMA & SİLME FONKSİYONLARI --- */
         function createNoteCardElement(container, noteObj, index, isFixed) {
             let card = document.createElement("div");
             card.className = "note-card";
-            if (isFixed) {
-                card.classList.add("fixed");
-            }
-            if (noteObj.completed) {
-                card.classList.add("completed");
-            }
+            if (isFixed) card.classList.add("fixed");
+            if (noteObj.completed) card.classList.add("completed");
             
             let wrapper = document.createElement("div");
             wrapper.className = "note-content-wrapper";
@@ -883,10 +823,7 @@
             checkbox.type = "checkbox";
             checkbox.className = "note-checkbox";
             checkbox.checked = !!noteObj.completed;
-            checkbox.title = "Yapıldı olarak işaretle";
-            checkbox.onchange = function() {
-                toggleNoteComplete(index, isFixed);
-            };
+            checkbox.onchange = () => toggleNoteComplete(index, isFixed);
 
             let p = document.createElement("p");
             p.textContent = noteObj.text;
@@ -898,19 +835,14 @@
                 let toggleBtn = document.createElement("button");
                 toggleBtn.className = "toggle-expand-btn";
                 toggleBtn.textContent = "Devamını Oku...";
-                toggleBtn.onclick = function() {
-                    openNoteModal(noteObj.text);
-                };
+                toggleBtn.onclick = () => openNoteModal(noteObj.text);
                 wrapper.appendChild(toggleBtn);
             }
 
             let delBtn = document.createElement("button");
             delBtn.className = "delete-note-btn";
             delBtn.innerHTML = "&times;";
-            delBtn.title = "Notu Sil";
-            delBtn.onclick = function() {
-                deleteNote(index, isFixed);
-            };
+            delBtn.onclick = () => deleteNote(index, isFixed);
 
             card.appendChild(wrapper);
             card.appendChild(delBtn);
@@ -918,35 +850,30 @@
         }
 
         function toggleNoteComplete(index, isFixed) {
-            let db = getUsersData();
+            let userObj = usersCache[currentUser];
             if (isFixed) {
-                db[currentUser].fixedNotes[index].completed = !db[currentUser].fixedNotes[index].completed;
-                saveUsersData(db);
-                loadFixedNotes();
+                userObj.fixedNotes[index].completed = !userObj.fixedNotes[index].completed;
             } else {
                 const dateStr = document.getElementById("entry-date").value;
-                db[currentUser].entries[dateStr][index].completed = !db[currentUser].entries[dateStr][index].completed;
-                saveUsersData(db);
-                loadEntries();
+                userObj.entries[dateStr][index].completed = !userObj.entries[dateStr][index].completed;
             }
+
+            database.ref(`journal_users/${currentUser}`).set(userObj);
         }
 
         function deleteNote(index, isFixed) {
-            let db = getUsersData();
+            let userObj = usersCache[currentUser];
             if (isFixed) {
-                db[currentUser].fixedNotes.splice(index, 1);
-                saveUsersData(db);
-                loadFixedNotes();
+                userObj.fixedNotes.splice(index, 1);
             } else {
                 const dateStr = document.getElementById("entry-date").value;
-                let notesList = db[currentUser].entries[dateStr];
-                notesList.splice(index, 1);
-                if (notesList.length === 0) {
-                    delete db[currentUser].entries[dateStr];
+                userObj.entries[dateStr].splice(index, 1);
+                if (userObj.entries[dateStr].length === 0) {
+                    delete userObj.entries[dateStr];
                 }
-                saveUsersData(db);
-                loadEntries();
             }
+
+            database.ref(`journal_users/${currentUser}`).set(userObj);
         }
 
         function openNoteModal(text) {
@@ -958,7 +885,6 @@
             document.getElementById("note-modal").classList.add("hidden");
         }
 
-        /* --- DİĞER KULLANICI AYARLARI --- */
         function showChangePassModal() {
             document.getElementById("main-container").classList.remove("wide-container");
             document.getElementById("main-screen").classList.add("hidden");
@@ -980,9 +906,9 @@
         function updatePassword() {
             const oldPass = document.getElementById("old-pass").value;
             const newPass = document.getElementById("new-pass").value;
-            let db = getUsersData();
+            let userObj = usersCache[currentUser];
 
-            if (!db[currentUser] || db[currentUser].password !== oldPass) {
+            if (userObj.password !== oldPass) {
                 document.getElementById("change-error").innerText = "Mevcut şifreniz yanlış!";
                 return;
             }
@@ -991,14 +917,13 @@
                 return;
             }
 
-            db[currentUser].password = newPass;
-            saveUsersData(db);
-
-            alert("Şifreniz başarıyla değiştirildi!");
-            backToMain();
+            userObj.password = newPass;
+            database.ref(`journal_users/${currentUser}`).set(userObj, () => {
+                alert("Şifreniz başarıyla değiştirildi!");
+                backToMain();
+            });
         }
 
-        /* --- ADMİN PANEL FONKSİYONLARI --- */
         function showAdminPanel() {
             document.getElementById("main-container").classList.add("wide-container");
             document.getElementById("main-screen").classList.add("hidden");
@@ -1006,25 +931,22 @@
             const listContainer = document.getElementById("admin-users-list");
             listContainer.innerHTML = "";
 
-            let db = getUsersData();
             let userCount = 0;
-
-            for (let username in db) {
+            for (let username in usersCache) {
                 if (username === "admin") continue; 
                 userCount++;
 
+                let userObj = usersCache[username];
                 let userCard = document.createElement("div");
                 userCard.style.cssText = "background: #f9fafb; border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
 
                 let infoDiv = document.createElement("div");
                 let title = document.createElement("h4");
                 title.style.margin = "0 0 5px 0";
-                title.style.color = "#1f2937";
                 title.textContent = `👤 ${username}`;
 
-                let entries = db[username].entries || {};
-                let fixedCount = db[username].fixedNotes ? db[username].fixedNotes.length : 0;
-                let totalDays = Object.keys(entries).length;
+                let fixedCount = userObj.fixedNotes ? userObj.fixedNotes.length : 0;
+                let totalDays = userObj.entries ? Object.keys(userObj.entries).length : 0;
 
                 let subText = document.createElement("p");
                 subText.style.margin = "0";
@@ -1042,19 +964,15 @@
                 let viewBtn = document.createElement("button");
                 viewBtn.textContent = "Notlarını Gör";
                 viewBtn.style.cssText = "background-color: #4f46e5; padding: 0.5rem 1rem; font-size: 0.85rem; width: auto; margin:0;";
-                viewBtn.onclick = function() {
-                    adminViewUserNotes(username);
-                };
+                viewBtn.onclick = () => adminViewUserNotes(username);
 
                 let delUserBtn = document.createElement("button");
                 delUserBtn.textContent = "Kullanıcıyı Sil";
                 delUserBtn.style.cssText = "background-color: #dc2626; padding: 0.5rem 1rem; font-size: 0.85rem; width: auto; margin:0;";
-                delUserBtn.onclick = function() {
-                    adminDeleteUser(username);
-                };
+                delUserBtn.onclick = () => adminDeleteUser(username);
 
                 btnGroup.appendChild(viewBtn);
-                btnGroup.appendChild(delUserBtn);
+                btnGroup.appendChild(delUser`btn`);
 
                 userCard.appendChild(infoDiv);
                 userCard.appendChild(btnGroup);
@@ -1062,7 +980,7 @@
             }
 
             if (userCount === 0) {
-                listContainer.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic;">Sistemde kayıtlı başka kullanıcı bulunmuyor.</p>';
+                listContainer.innerHTML = '<p style="color: #6b7280; text-align: center; font-style: italic;">Kayıtlı başka kullanıcı yok.</p>';
             }
 
             document.getElementById("admin-screen").classList.remove("hidden");
@@ -1074,19 +992,16 @@
             document.getElementById("main-screen").classList.remove("hidden");
             document.getElementById("welcome-msg").innerHTML = `👤 ${username} <span style="font-size:0.8rem; background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px;">Admin Modu</span>`;
             
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById("entry-date").value = today;
-            
+            document.getElementById("entry-date").value = new Date().toISOString().split('T')[0];
             isFixedViewActive = false;
             updateViewUI();
         }
 
         function adminDeleteUser(username) {
-            if (confirm(`"${username}" adlı kullanıcıyı ve tüm notlarını kalıcı olarak silmek istediğinize emin misiniz?`)) {
-                let db = getUsersData();
-                delete db[username];
-                saveUsersData(db);
-                showAdminPanel();
+            if (confirm(`"${username}" adlı kullanıcıyı silmek istediğinize emin misiniz?`)) {
+                database.ref(`journal_users/${username}`).remove(() => {
+                    showAdminPanel();
+                });
             }
         }
     </script>
