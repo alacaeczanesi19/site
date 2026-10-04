@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boy, Kilo ve SDS (Z-Skoru) Hesaplama Aracı</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen font-sans text-slate-800 py-10 px-4">
+
+    <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-100">
+        <!-- Başlık -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 sm:p-8 text-center">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Boy, Kilo ve SDS Hesaplama</h1>
+            <p class="text-blue-100 mt-2 text-sm sm:text-base">Çocuk/Ergen Büyüme Parametreleri (Z-Skoru) ve Yetişkin VKİ Analizi</p>
+        </div>
+
+        <!-- Form Alanı -->
+        <div class="p-6 sm:p-8 space-y-6">
+            <!-- Yaş Grubu Seçimi -->
+            <div class="grid grid-cols-2 gap-4">
+                <button type="button" id="btnChild" onclick="setAgeGroup('child')" class="py-3 px-4 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-blue-600 bg-blue-50 text-blue-700 shadow-sm">
+                    👶 Çocuk / Ergen (0 - 18 Yaş)
+                </button>
+                <button type="button" id="btnAdult" onclick="setAgeGroup('adult')" class="py-3 px-4 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-slate-200 bg-white text-slate-600 hover:border-slate-300">
+                    👨‍🦱 Yetişkin (18+ Yaş)
+                </button>
+            </div>
+
+            <form id="calcForm" onsubmit="calculate(event)" class="space-y-5">
+                <!-- Cinsiyet (Sadece çocuk için aktif) -->
+                <div id="genderContainer" class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700">Cinsiyet</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition border-slate-200">
+                            <input type="radio" name="gender" value="boy" checked class="text-blue-600 focus:ring-blue-500">
+                            <span class="font-medium text-slate-700">Erkek</span>
+                        </label>
+                        <label class="flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition border-slate-200">
+                            <input type="radio" name="gender" value="girl" class="text-blue-600 focus:ring-blue-500">
+                            <span class="font-medium text-slate-700">Kız</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Doğum Tarihi (Sadece çocuk için aktif) -->
+                <div id="birthdateContainer" class="space-y-1">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Doğum Tarihi</label>
+                    <input type="date" id="birthDate" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <p id="calculatedAgeInfo" class="text-xs text-slate-500 mt-1 font-medium"></p>
+                </div>
+
+                <!-- Boy ve Kilo -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Boy (cm)</label>
+                        <input type="number" step="0.1" id="height" required placeholder="Örn: 125.5" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Kilo (kg)</label>
+                        <input type="number" step="0.1" id="weight" required placeholder="Örn: 26.4" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <!-- Hesapla Butonu -->
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 text-base">
+                    Hesapla ve Analiz Et
+                </button>
+            </form>
+
+            <!-- Sonuç Alanı -->
+            <div id="resultSection" class="hidden mt-8 border-t border-slate-100 pt-6 space-y-6">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    📊 Hesaplama Sonuçları
+                </h2>
+
+                <div id="adultResults" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Vücut Kitle İndeksi (VKİ)</span>
+                        <div id="resBmi" class="text-2xl font-bold text-blue-600 mt-1">-</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Durum / Sınıflandırma</span>
+                        <div id="resBmiStatus" class="text-lg font-bold text-slate-700 mt-1">-</div>
+                    </div>
+                </div>
+
+                <div id="childResults" class="hidden space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-blue-600">Boy SDS (Z-Skoru)</span>
+                            <div id="resHeightSds" class="text-2xl font-bold text-blue-700 mt-1">-</div>
+                            <div id="resHeightEval" class="text-xs font-medium text-slate-600 mt-1">-</div>
+                        </div>
+                        <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600">Kilo SDS (Z-Skoru)</span>
+                            <div id="resWeightSds" class="text-2xl font-bold text-indigo-700 mt-1">-</div>
+                            <div id="resWeightEval" class="text-xs font-medium text-slate-600 mt-1">-</div>
+                        </div>
+                        <div class="bg-violet-50/50 p-4 rounded-xl border border-violet-100">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-violet-600">VKİ SDS (Z-Skoru)</span>
+                            <div id="resBmiSds" class="text-2xl font-bold text-violet-700 mt-1">-</div>
+                            <div id="resBmiEval" class="text-xs font-medium text-slate-600 mt-1">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="clinicalAdvice" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm leading-relaxed"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'child';
+
+        function setAgeGroup(mode) {
+            currentMode = mode;
+            const btnChild = document.getElementById('btnChild');
+            const btnAdult = document.getElementById('btnAdult');
+            const genderContainer = document.getElementById('genderContainer');
+            const birthdateContainer = document.getElementById('birthdateContainer');
+
+            if (mode === 'child') {
+                btnChild.className = "py-3 px-4 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-blue-600 bg-blue-50 text-blue-700 shadow-sm";
+                btnAdult.className = "py-3 px-4 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-slate-200 bg-white text-slate-600 hover:border-slate-300";
+                genderContainer.style.display = 'block';
+                birthdateContainer.style.display = 'block';
+                document.getElementById('birthDate').required = true;
+            } else {
+                btnAdult.className = "py-3 px-4 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-blue-600 bg-blue-50 text-blue-700 shadow-sm";
+                btnChild.className = "py-3 px-4 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-slate-200 bg-white text-slate-600 hover:border-slate-300";
+                genderContainer.style.display = 'none';
+                birthdateContainer.style.display = 'none';
+                document.getElementById('birthDate').required = false;
+            }
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('calculatedAgeInfo').innerText = '';
+        }
+
+        function calculate(e) {
+            e.preventDefault();
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const resultSection = document.getElementById('resultSection');
+            const adultResults = document.getElementById('adultResults');
+            const childResults = document.getElementById('childResults');
+            const clinicalAdvice = document.getElementById('clinicalAdvice');
+
+            resultSection.style.display = 'block';
+
+            if (currentMode === 'adult') {
+                adultResults.style.display = 'grid';
+                childResults.style.display = 'none';
+
+                const heightM = height / 100;
+                const bmi = weight / (heightM * heightM);
+                document.getElementById('resBmi').innerText = bmi.toFixed(2);
+
+                let status = "";
+                let adviceText = "";
+                if (bmi < 18.5) {
+                    status = "Zayıf";
+                    adviceText = "VKİ değeriniz 18.5 altında (Zayıf). Sağlıklı kilo alımı için beslenme ve diyetisyen desteği değerlendirilebilir.";
+                } else if (bmi >= 18.5 && bmi < 25) {
+                    status = "Normal Kilolu";
+                    adviceText = "Tebrikler! VKİ değeriniz normal aralıkta. Bu kiloyu korumak için dengeli beslenme ve düzenli fiziksel aktivite önerilir.";
+                } else if (bmi >= 25 && bmi < 30) {
+                    status = "Fazla Kilolu";
+                    adviceText = "VKİ değeriniz 25-30 arasında (Fazla Kilolu). Yaşam tarzı düzenlemeleri ile ideal kiloya dönmek faydalı olacaktır.";
+                } else {
+                    status = "Obez";
+                    adviceText = "VKİ değeriniz 30 üzerinde (Obezite sınıfı). Kardiyometabolik riskler açısından bir uzmana başvurmanız önerilir.";
+                }
+                document.getElementById('resBmiStatus').innerText = status;
+                clinicalAdvice.innerHTML = `<strong>Değerlendirme:</strong> ${adviceText}`;
+
+            } else {
+                adultResults.style.display = 'none';
+                childResults.style.display = 'block';
+
+                const birthDateVal = document.getElementById('birthDate').value;
+                if (!birthDateVal) {
+                    alert("Lütfen doğum tarihi giriniz.");
+                    return;
+                }
+
+                const birthDate = new Date(birthDateVal);
+                const today = new Date();
+
+                if (birthDate > today) {
+                    alert("Doğum tarihi bugünden büyük olamaz.");
+                    return;
+                }
+
+                let years = today.getFullYear() - birthDate.getFullYear();
+                let months = today.getMonth() - birthDate.getMonth();
+                
+                if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
+                    years--;
+                    months += 12;
+                }
+
+                const totalMonths = (years * 12) + months;
+
+                if (years > 18) {
+                    alert("Çocuk/Ergen modu için yaş 18'den büyük olamaz. Lütfen Yetişkin modunu seçiniz.");
+                    return;
+                }
+
+                document.getElementById('calculatedAgeInfo').innerText = `Hesaplanan Yaş: ${years} yıl, ${months} ay (${totalMonths} ay)`;
+
+                let medianHeight = 50 + (totalMonths * 2.2);
+                if(years > 2) medianHeight = 85 + (years * 6);
+                
+                let medianWeight = 3.5 + (totalMonths * 0.5);
+                if(years > 2) medianWeight = 12 + (years * 2.2);
+
+                const heightSds = (height - medianHeight) / (medianHeight * 0.04);
+                const weightSds = (weight - medianWeight) / (medianWeight * 0.08);
+                
+                const heightM = height / 100;
+                const currentBmi = weight / (heightM * heightM);
+                const medianBmi = medianWeight / Math.pow(medianHeight/100, 2);
+                const bmiSds = (currentBmi - medianBmi) / (medianBmi * 0.1);
+
+                document.getElementById('resHeightSds').innerText = heightSds.toFixed(2);
+                document.getElementById('resWeightSds').innerText = weightSds.toFixed(2);
+                document.getElementById('resBmiSds').innerText = bmiSds.toFixed(2);
+
+                document.getElementById('resHeightEval').innerText = getSdsInterpretation(heightSds, 'boy');
+                document.getElementById('resWeightEval').innerText = getSdsInterpretation(weightSds, 'kilo');
+                document.getElementById('resBmiEval').innerText = getSdsInterpretation(bmiSds, 'vki');
+
+                clinicalAdvice.innerHTML = `<strong>Pediatrik Not:</strong> -2 SDS ile +2 SDS arasındaki değerler normal popülasyonun sınırları (±2 standart sapma) içinde kabul edilir.`;
+            }
+        }
+
+        function getSdsInterpretation(sds, type) {
+            if (sds < -2) return type === 'boy' ? 'Kısa Boy (Riskli)' : 'Düşük / Zayıf';
+            if (sds > 2) return type === 'boy' ? 'Uzun Boy' : 'Yüksek / Kilolu';
+            return 'Normal Aralıkta (-2 ile +2)';
+        }
+    </script>
+</body>
+</html>
