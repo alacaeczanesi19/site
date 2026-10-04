@@ -24,10 +24,10 @@
         </div>
     </header>
 
-    <!-- Ana İçerik / Kartlar (2'li Kolon) ve Doktor Numaraları Yan Yana -->
+    <!-- Ana İçerik / Kartlar ve Doktor Numaraları Yan Yana -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10 w-full grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
         
-        <!-- Sol Taraf: 2'li Kart Düzeni (Sipariş, Notlar ve SDS Hesaplama) -->
+        <!-- Sol Taraf: Kart Düzeni (Sipariş, Notlar, SDS ve İTS/ÜTS Takip) -->
         <div class="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <!-- SİPARİŞ SİTESİ KARTI -->
@@ -76,6 +76,23 @@
                     </p>
                 </div>
                 <div class="mt-8 flex items-center text-blue-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
+                    <span>Sisteme Git</span>
+                    <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- YENİ EKLENEN: İTS & ÜTS TAKİP KARTI -->
+            <a href="KAREKOD.html" class="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+                <div>
+                    <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300 shadow-inner">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors">STOK SORGULAMA</h2>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        elimizdeki stokları kontrol
+                    </p>
+                </div>
+                <div class="mt-8 flex items-center text-amber-600 font-semibold text-sm group-hover:translate-x-2 transition-transform duration-200">
                     <span>Sisteme Git</span>
                     <i class="fa-solid fa-arrow-right ml-2"></i>
                 </div>
@@ -279,7 +296,7 @@
 
         chatRef.on('child_added', (snapshot) => {
             const data = snapshot.val();
-            const messagesContainer = document.getElementById('chat-messages');
+            The messagesContainer = document.getElementById('chat-messages');
 
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('flex', 'flex-col', 'max-w-[85%]', 'self-start');
