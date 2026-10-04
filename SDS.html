@@ -6,19 +6,25 @@
     <title>Boy, Kilo ve SDS (Z-Skoru) Hesaplama Aracı</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen font-sans text-slate-800 py-10 px-4">
 
-    <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-100">
+    <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-100 relative">
+        
+        <!-- ANA SAYFA BUTONU (SOL ÜST) -->
+        <div class="absolute top-6 left-6 z-10">
+            <a href="index.html" class="bg-blue-700 hover:bg-blue-800 text-white p-2.5 rounded-lg shadow flex items-center justify-center transition" title="Ana Sayfaya Dön">
+                <i class="fa-solid fa-house text-xl"></i>
+            </a>
+        </div>
+
         <!-- Başlık -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 sm:p-8 text-center">
-            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Boy, Kilo ve SDS Hesaplama</h1>
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 sm:p-8 text-center relative">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-2 sm:mt-0">Boy, Kilo ve SDS Hesaplama</h1>
             <p class="text-blue-100 mt-2 text-sm sm:text-base">Çocuk/Ergen Büyüme Parametreleri (Z-Skoru) ve Yetişkin VKİ Analizi</p>
         </div>
-<!-- ANA SAYFA BUTONU (SOL ÜST) -->
-                <a href="index.html" class="bg-emerald-800 hover:bg-emerald-900 text-white p-2.5 rounded-lg shadow flex items-center justify-center transition" title="Ana Sayfaya Dön">
-                    <i class="fa-solid fa-house text-xl"></i>
-                </a>
+
         <!-- Form Alanı -->
         <div class="p-6 sm:p-8 space-y-6">
             <!-- Yaş Grubu Seçimi -->
