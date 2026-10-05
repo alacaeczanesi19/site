@@ -1,5 +1,5 @@
 (function() {
-    // FontAwesome ikonları
+    // FontAwesome ikonlarının yüklenmesi
     if (!document.querySelector('link[href*="font-awesome"]')) {
         const fa = document.createElement('link');
         fa.rel = 'stylesheet';
@@ -34,19 +34,19 @@
                 <span id="chat-badge" class="hidden absolute -top-2 -right-2 bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md animate-bounce">0</span>
             </button>
 
-            <!-- Not: 'dark' sınıfı buraya eklenecek -->
             <div id="chat-box" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 h-[480px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
                 <!-- Sohbet Header -->
-                <div class="bg-emerald-700 text-white px-4 py-3 flex justify-between items-center font-semibold">
+                <div id="chat-header" class="bg-emerald-700 text-white px-4 py-3 flex justify-between items-center font-semibold">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-headset"></i>
                         <span>Canlı Sohbet Alanı</span>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button onclick="toggleDarkMode()" title="Karanlık/Aydınlık Mod" class="text-emerald-100 hover:text-white transition-colors cursor-pointer text-sm p-1">
+                        <!-- Karanlık Mod Butonu (Garanti Görünüm İçin ID eklendi) -->
+                        <button id="theme-toggle-btn" onclick="toggleDarkMode()" title="Karanlık/Aydınlık Mod" class="text-white hover:text-emerald-200 transition-colors cursor-pointer text-base bg-emerald-800 hover:bg-emerald-900 px-2.5 py-1 rounded-lg">
                             <i id="theme-icon" class="fa-solid fa-moon"></i>
                         </button>
-                        <button onclick="toggleChat()" class="text-emerald-100 hover:text-white transition-colors text-lg cursor-pointer p-1">
+                        <button onclick="toggleChat()" class="text-white hover:text-emerald-200 transition-colors text-lg cursor-pointer">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
@@ -71,11 +71,11 @@
                     <button onclick="addEmoji('💊')" class="hover:bg-slate-200 rounded p-1">💊</button>
                     <button onclick="addEmoji('📦')" class="hover:bg-slate-200 rounded p-1">📦</button>
                     <button onclick="addEmoji('🔥')" class="hover:bg-slate-200 rounded p-1">🔥</button>
-                    <button onclick="addEmoji('❤️')" class="hover:bg-slate-200 rounded p-1">❤️️</button>
+                    <button onclick="addEmoji('❤️')" class="hover:bg-slate-200 rounded p-1">❤️</button>
                 </div>
 
                 <!-- Mesaj Gönderme Alanı -->
-                <div class="p-3 bg-white border-t border-slate-200 flex flex-col gap-2">
+                <div id="chat-footer-bar" class="p-3 bg-white border-t border-slate-200 flex flex-col gap-2">
                     <input type="text" id="chat-user" placeholder="Adınız..." oninput="saveUser()" class="w-full px-3 py-1.5 text-sm bg-white text-slate-800 border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600" />
                     <div class="flex gap-2">
                         <button onclick="toggleEmojiPicker()" type="button" class="text-slate-500 hover:text-emerald-600 px-2 text-base cursor-pointer" title="Emoji Seç">
@@ -94,29 +94,29 @@
         div.innerHTML = chatHTML;
         document.body.appendChild(div);
 
-        // Manuel Karanlık Mod Stil Uygulayıcısı (Tailwind'in sınıf çakışmalarını aşmak için kesin çözüm)
+        // Tema Uygulama Fonksiyonu
         const applyTheme = (isDark) => {
             const box = document.getElementById('chat-box');
+            const header = document.getElementById('chat-header');
             const icon = document.getElementById('theme-icon');
-            const header = box.querySelector('.bg-emerald-700');
             const messages = document.getElementById('chat-messages');
             const typing = document.getElementById('typing-indicator');
             const emojiPicker = document.getElementById('emoji-picker');
-            const bottomBar = emojiPicker.nextElementSibling;
+            const footerBar = document.getElementById('chat-footer-bar');
             const userInput = document.getElementById('chat-user');
             const chatInput = document.getElementById('chat-input');
 
             if (isDark) {
-                box.style.backgroundColor = '#0f172a'; // slate-900
-                box.style.borderColor = '#1e293b'; // slate-800
-                header.style.backgroundColor = '#065f46'; // emerald-800
-                messages.style.backgroundColor = '#020617'; // slate-950
+                box.style.backgroundColor = '#0f172a';
+                box.style.borderColor = '#1e293b';
+                header.style.backgroundColor = '#065f46';
+                messages.style.backgroundColor = '#020617';
                 typing.style.backgroundColor = '#020617';
                 typing.style.color = '#94a3b8';
                 emojiPicker.style.backgroundColor = '#0f172a';
                 emojiPicker.style.borderColor = '#1e293b';
-                bottomBar.style.backgroundColor = '#0f172a';
-                bottomBar.style.borderColor = '#1e293b';
+                footerBar.style.backgroundColor = '#0f172a';
+                footerBar.style.borderColor = '#1e293b';
                 userInput.style.backgroundColor = '#1e293b';
                 userInput.style.color = '#f8fafc';
                 userInput.style.borderColor = '#334155';
@@ -129,14 +129,14 @@
             } else {
                 box.style.backgroundColor = '#ffffff';
                 box.style.borderColor = '#e2e8f0';
-                header.style.backgroundColor = '#047857'; // emerald-700
-                messages.style.backgroundColor = '#f8fafc'; // slate-50
+                header.style.backgroundColor = '#047857';
+                messages.style.backgroundColor = '#f8fafc';
                 typing.style.backgroundColor = '#f8fafc';
                 typing.style.color = '#94a3b8';
                 emojiPicker.style.backgroundColor = '#f1f5f9';
                 emojiPicker.style.borderColor = '#e2e8f0';
-                bottomBar.style.backgroundColor = '#ffffff';
-                bottomBar.style.borderColor = '#e2e8f0';
+                footerBar.style.backgroundColor = '#ffffff';
+                footerBar.style.borderColor = '#e2e8f0';
                 userInput.style.backgroundColor = '#ffffff';
                 userInput.style.color = '#1e293b';
                 userInput.style.borderColor = '#cbd5e1';
@@ -149,9 +149,8 @@
             }
         };
 
-        // Sayfa açıldığında hafızadaki modu yükle
-        const savedTheme = localStorage.getItem('chat_theme');
-        if (savedTheme === 'dark') {
+        // Sayfa açılışında kayıtlı modu kontrol et
+        if (localStorage.getItem('chat_theme') === 'dark') {
             applyTheme(true);
         }
 
@@ -164,15 +163,14 @@
             }
         };
 
-        // Diğer fonksiyonlar (Firebase, Mesajlaşma vb.) aynı kalıyor...
+        // Diğer Ayarlar ve Firebase İşlemleri
         const savedName = localStorage.getItem('chat_username');
         if (savedName) {
             document.getElementById('chat-user').value = savedName;
         }
 
         window.saveUser = function() {
-            const name = document.getElementById('chat-user').value;
-            localStorage.setItem('chat_username', name);
+            localStorage.setItem('chat_username', document.getElementById('chat-user').value);
         };
 
         const firebaseConfig = {
