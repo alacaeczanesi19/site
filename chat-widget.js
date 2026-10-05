@@ -1,6 +1,4 @@
 (function() {
-    console.log("Chat Widget JS yüklendi!");
-
     // FontAwesome ikonları
     if (!document.querySelector('link[href*="font-awesome"]')) {
         const fa = document.createElement('link');
@@ -25,7 +23,6 @@
     }
 
     function initChatWidget() {
-        console.log("initChatWidget çalıştı!");
         let unreadCount = 0;
         let typingTimeout = null;
 
@@ -44,7 +41,13 @@
                         <i class="fa-solid fa-headset"></i>
                         <span>Canlı Sohbet Alanı</span>
                     </div>
-                    <div id="header-right-actions" class="flex items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <!-- Karanlık/Aydınlık Mod Butonu (Doğrudan Header İçinde) -->
+                        <button id="theme-toggle-btn" onclick="toggleDarkMode()" title="Karanlık/Aydınlık Mod" class="bg-emerald-800 hover:bg-emerald-900 text-white px-2.5 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer border border-emerald-600">
+                            <i id="theme-icon" class="fa-solid fa-moon"></i>
+                            <span class="hidden sm:inline">Tema</span>
+                        </button>
+                        <!-- Kapatma Butonu -->
                         <button onclick="toggleChat()" class="text-white hover:text-emerald-200 transition-colors text-lg cursor-pointer p-1">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -92,21 +95,6 @@
         const div = document.createElement('div');
         div.innerHTML = chatHTML;
         document.body.appendChild(div);
-
-        // Butonu JavaScript ile zorla ekleyelim
-        const headerRight = document.getElementById('header-right-actions');
-        if (headerRight) {
-            const themeBtn = document.createElement('button');
-            themeBtn.id = "theme-toggle-btn";
-            themeBtn.setAttribute("onclick", "toggleDarkMode()");
-            themeBtn.title = "Karanlık/Aydınlık Mod";
-            themeBtn.style.cssText = "background: #047857; border: 1px solid #065f46; cursor: pointer; color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px; margin-right: 5px;";
-            themeBtn.innerHTML = '<i id="theme-icon" class="fa-solid fa-moon"></i> MOD';
-            headerRight.insertBefore(themeBtn, headerRight.firstChild);
-            console.log("Karanlık mod butonu başarıyla eklendi!");
-        } else {
-            console.log("Hata: header-right-actions bulunamadı!");
-        }
 
         // Tema Değiştirme Fonksiyonu
         const applyTheme = (isDark) => {
@@ -270,7 +258,7 @@
             const userInput = document.getElementById('chat-input');
             const userNameInput = document.getElementById('chat-user');
             const text = userInput.value.trim();
-            const name = userNameInput.value.tarim || userNameInput.value.trim() || "Misafir";
+            const name = userNameInput.value.trim() || "Misafir";
 
             if (text === "") return;
             if (text === "/clear") {
