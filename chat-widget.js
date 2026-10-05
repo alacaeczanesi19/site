@@ -105,11 +105,17 @@
             localStorage.setItem('chat_username', name);
         };
 
-        // Karanlık Mod Ayarları
+        // Karanlık Mod Ayarları (Sayfa açıldığında hafızadaki tercihi uygula)
         const savedTheme = localStorage.getItem('chat_theme');
+        const chatBoxEl = document.getElementById('chat-box');
+        const themeIconEl = document.getElementById('theme-icon');
+
         if (savedTheme === 'dark') {
-            document.getElementById('chat-box').classList.add('dark');
-            document.getElementById('theme-icon').className = "fa-solid fa-sun";
+            chatBoxEl.classList.add('dark');
+            if (themeIconEl) themeIconEl.className = "fa-solid fa-sun";
+        } else {
+            chatBoxEl.classList.remove('dark');
+            if (themeIconEl) themeIconEl.className = "fa-solid fa-moon";
         }
 
         window.toggleDarkMode = function() {
@@ -119,10 +125,10 @@
             
             if (box.classList.contains('dark')) {
                 localStorage.setItem('chat_theme', 'dark');
-                icon.className = "fa-solid fa-sun";
+                if (icon) icon.className = "fa-solid fa-sun";
             } else {
                 localStorage.setItem('chat_theme', 'light');
-                icon.className = "fa-solid fa-moon";
+                if (icon) icon.className = "fa-solid fa-moon";
             }
         };
 
@@ -255,7 +261,6 @@
                 return;
             }
 
-            // Mesaj saati formatı (Örn: 14:45)
             const now = new Date();
             const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -314,8 +319,8 @@
             }
         });
 
-        window.checkEnter = function(event) {
-            if (event.key === 'Enter') {
+        window.checkEnter = function(fileEvent) {
+            if (fileEvent.key === 'Enter') {
                 window.sendMessage();
             }
         };
