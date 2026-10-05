@@ -1,5 +1,5 @@
 (function() {
-    // FontAwesome ikonlarının yüklenmesi
+    // FontAwesome ikonları
     if (!document.querySelector('link[href*="font-awesome"]')) {
         const fa = document.createElement('link');
         fa.rel = 'stylesheet';
@@ -41,12 +41,9 @@
                         <i class="fa-solid fa-headset"></i>
                         <span>Canlı Sohbet Alanı</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <!-- Karanlık Mod Butonu (Garanti Görünüm İçin ID eklendi) -->
-                        <button id="theme-toggle-btn" onclick="toggleDarkMode()" title="Karanlık/Aydınlık Mod" class="text-white hover:text-emerald-200 transition-colors cursor-pointer text-base bg-emerald-800 hover:bg-emerald-900 px-2.5 py-1 rounded-lg">
-                            <i id="theme-icon" class="fa-solid fa-moon"></i>
-                        </button>
-                        <button onclick="toggleChat()" class="text-white hover:text-emerald-200 transition-colors text-lg cursor-pointer">
+                    <div id="header-right-actions" class="flex items-center gap-2">
+                        <!-- Kapatma Butonu -->
+                        <button onclick="toggleChat()" class="text-white hover:text-emerald-200 transition-colors text-lg cursor-pointer p-1">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
@@ -94,7 +91,19 @@
         div.innerHTML = chatHTML;
         document.body.appendChild(div);
 
-        // Tema Uygulama Fonksiyonu
+        // --- KESİN ÇÖZÜM: BUTONU JS İLE DİNAMİK OLARAK EKLEME ---
+        const headerRight = document.getElementById('header-right-actions');
+        const themeBtn = document.createElement('button');
+        themeBtn.id = "theme-toggle-btn";
+        themeBtn.setAttribute("onclick", "toggleDarkMode()");
+        themeBtn.title = "Karanlık/Aydınlık Mod";
+        themeBtn.style.cssText = "background: rgba(0,0,0,0.15); border: none; cursor: pointer; color: white; padding: 6px 10px; border-radius: 6px; font-size: 14px; margin-right: 4px; display: flex; align-items: center; justify-content: center;";
+        themeBtn.innerHTML = '<i id="theme-icon" class="fa-solid fa-moon"></i>';
+        
+        // Kapatma butonundan önce (sağ üstte en solda kalacak şekilde) araya ekle
+        headerRight.insertBefore(themeBtn, headerRight.firstChild);
+
+        // Tema Değiştirme Fonksiyonu
         const applyTheme = (isDark) => {
             const box = document.getElementById('chat-box');
             const header = document.getElementById('chat-header');
@@ -149,7 +158,6 @@
             }
         };
 
-        // Sayfa açılışında kayıtlı modu kontrol et
         if (localStorage.getItem('chat_theme') === 'dark') {
             applyTheme(true);
         }
@@ -163,7 +171,7 @@
             }
         };
 
-        // Diğer Ayarlar ve Firebase İşlemleri
+        // Diğer Fonksiyonlar
         const savedName = localStorage.getItem('chat_username');
         if (savedName) {
             document.getElementById('chat-user').value = savedName;
