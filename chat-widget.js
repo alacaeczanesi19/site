@@ -1,4 +1,6 @@
 (function() {
+    console.log("Chat Widget JS yüklendi!");
+
     // FontAwesome ikonları
     if (!document.querySelector('link[href*="font-awesome"]')) {
         const fa = document.createElement('link');
@@ -23,6 +25,7 @@
     }
 
     function initChatWidget() {
+        console.log("initChatWidget çalıştı!");
         let unreadCount = 0;
         let typingTimeout = null;
 
@@ -42,7 +45,6 @@
                         <span>Canlı Sohbet Alanı</span>
                     </div>
                     <div id="header-right-actions" class="flex items-center gap-2">
-                        <!-- Kapatma Butonu -->
                         <button onclick="toggleChat()" class="text-white hover:text-emerald-200 transition-colors text-lg cursor-pointer p-1">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -91,17 +93,20 @@
         div.innerHTML = chatHTML;
         document.body.appendChild(div);
 
-        // --- KESİN ÇÖZÜM: BUTONU JS İLE DİNAMİK OLARAK EKLEME ---
+        // Butonu JavaScript ile zorla ekleyelim
         const headerRight = document.getElementById('header-right-actions');
-        const themeBtn = document.createElement('button');
-        themeBtn.id = "theme-toggle-btn";
-        themeBtn.setAttribute("onclick", "toggleDarkMode()");
-        themeBtn.title = "Karanlık/Aydınlık Mod";
-        themeBtn.style.cssText = "background: rgba(0,0,0,0.15); border: none; cursor: pointer; color: white; padding: 6px 10px; border-radius: 6px; font-size: 14px; margin-right: 4px; display: flex; align-items: center; justify-content: center;";
-        themeBtn.innerHTML = '<i id="theme-icon" class="fa-solid fa-moon"></i>';
-        
-        // Kapatma butonundan önce (sağ üstte en solda kalacak şekilde) araya ekle
-        headerRight.insertBefore(themeBtn, headerRight.firstChild);
+        if (headerRight) {
+            const themeBtn = document.createElement('button');
+            themeBtn.id = "theme-toggle-btn";
+            themeBtn.setAttribute("onclick", "toggleDarkMode()");
+            themeBtn.title = "Karanlık/Aydınlık Mod";
+            themeBtn.style.cssText = "background: #047857; border: 1px solid #065f46; cursor: pointer; color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px; margin-right: 5px;";
+            themeBtn.innerHTML = '<i id="theme-icon" class="fa-solid fa-moon"></i> MOD';
+            headerRight.insertBefore(themeBtn, headerRight.firstChild);
+            console.log("Karanlık mod butonu başarıyla eklendi!");
+        } else {
+            console.log("Hata: header-right-actions bulunamadı!");
+        }
 
         // Tema Değiştirme Fonksiyonu
         const applyTheme = (isDark) => {
@@ -133,7 +138,7 @@
                 chatInput.style.color = '#f8fafc';
                 chatInput.style.borderColor = '#334155';
                 
-                icon.className = "fa-solid fa-sun";
+                if(icon) icon.className = "fa-solid fa-sun";
                 localStorage.setItem('chat_theme', 'dark');
             } else {
                 box.style.backgroundColor = '#ffffff';
@@ -153,7 +158,7 @@
                 chatInput.style.color = '#1e293b';
                 chatInput.style.borderColor = '#cbd5e1';
 
-                icon.className = "fa-solid fa-moon";
+                if(icon) icon.className = "fa-solid fa-moon";
                 localStorage.setItem('chat_theme', 'light');
             }
         };
@@ -171,7 +176,7 @@
             }
         };
 
-        // Diğer Fonksiyonlar
+        // Firebase ve Diğer Fonksiyonlar
         const savedName = localStorage.getItem('chat_username');
         if (savedName) {
             document.getElementById('chat-user').value = savedName;
@@ -265,7 +270,7 @@
             const userInput = document.getElementById('chat-input');
             const userNameInput = document.getElementById('chat-user');
             const text = userInput.value.trim();
-            const name = userNameInput.value.trim() || "Misafir";
+            const name = userNameInput.value.tarim || userNameInput.value.trim() || "Misafir";
 
             if (text === "") return;
             if (text === "/clear") {
