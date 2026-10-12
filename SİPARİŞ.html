@@ -148,7 +148,7 @@
                         <thead>
                             <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
                                 <th class="p-3 rounded-l-lg">Durum</th>
-                                <th class="p-3">Depo (Tıkla Seç) / Ürün</th>
+                                <th class="p-3">Depo (Tıkla Seç) / Ürün (İsme Bas Geçmişi Gör)</th>
                                 <th class="p-3">Miktar / MF / Düzenle</th>
                                 <th class="p-3">Kategori</th>
                                 <th class="p-3">Not</th>
@@ -292,6 +292,24 @@
             </div>
         </div>
     </main>
+
+    <!-- ÜRÜN GEÇMİŞİ GÖSTERME MODALI -->
+    <div id="urunGecmisModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 id="urunGecmisBaslik" class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-history text-emerald-600"></i> Ürün Geçmiş Alımları
+                </h3>
+                <button onclick="urunGecmisModalKapat()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+            </div>
+            <div id="urunGecmisIcerik" class="max-h-80 overflow-y-auto space-y-2">
+                <!-- Dinamik geçmiş alım satırları buraya gelecek -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="urunGecmisModalKapat()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">Kapat</button>
+            </div>
+        </div>
+    </div>
 
     <!-- HIZLI DEPO SEÇİM MODALI -->
     <div id="depoModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
@@ -642,7 +660,47 @@
             await fb.updateDoc(fb.doc(fb.db, "yokListesi", item.id), { tamamlandi: !item.tamamlandi });
         }
 
-        // --- AKTİF ÜRÜN KAPSAMLI DÜZENLEME ---
+        // --- ÜRÜN GEÇMİŞİNİ GÖSTERME FONKSİYONLARI ---
+        function urunGecmisiniGoster(urunAdi) {
+            const modalBaslik = document.getElementById('urunGecmisBaslik');
+            const icerikDiv = document.getElementById('urunGecmisIcerik');
+            
+            modalBaslik.innerHTML = `<i class="fa-solid.fa-history text-emerald-600 mr-2"></i> "${urunAdi}" - Geçmiş Alımları`;
+            icerikDiv.innerHTML = '';
+
+            // Geçmiş siparişler içinde ada göre filtrele
+            const eslesenGecmisler = gecmisSiparisler.filter(item => item.adi && item.adi.toLowerCase() === urunAdi.toLowerCase());
+
+            if (eslesenGecmisler.length === 0) {
+                icerikDiv.innerHTML = `<div class="text-center py-6 text-slate-400"><p>Bu ürüne ait geçmiş sipariş arşivi bulunamadı.</p></div>`;
+            } else {
+                // Tarihe göre yeniden eskiye sıralama
+                eslesenGecmisler.sort((a, b) => (b.eklenmeTarihi || '').localeCompare(a.eklenmeTarihi || ''));
+
+                eslesenGecmisler.forEach(item => {
+                    icerikDiv.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-slate-50 border rounded-lg hover:bg-slate-100 transition">
+                            <div>
+                                <div class="font-semibold text-emerald-800 text-sm">${item.eklenmeTarihi || 'Tarih Yok'}</div>
+                                <div class="text-xs text-slate-500"><span class="font-medium text-slate-700">${item.depo || 'Seçilmedi'}</span></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold text-slate-800">${item.miktari} ${item.birimi || 'Kutu'}</div>
+                                ${item.notu ? `<div class="text-xs text-slate-500 italic">${item.notu}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('urunGecmisModal').classList.remove('hidden');
+        }
+
+        function urunGecmisModalKapat() {
+            document.getElementById('urunGecmisModal').classList.add('hidden');
+        }
+
+        // --- AKTİF ÜRÜN Kapsamlı DÜZENLEME ---
         function aktifUrunDuzenleModalAc(item) {
             document.getElementById('duzenleAktifId').value = item.id;
             document.getElementById('duzenleAktifDepo').value = item.depo || 'Seçilmedi';
@@ -802,7 +860,7 @@
                     <td class="p-3"><input type="checkbox" ${item.tamamlandi ? 'checked' : ''} onclick='durumuDegistir(${JSON.stringify(item)})' class="w-4 h-4 text-emerald-600 rounded cursor-pointer"></td>
                     <td class="p-3">
                         <button onclick="depoDuzenleModu('${item.id}')" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${depoRozetRengi(item.depo)} mb-1 cursor-pointer">${item.depo || 'Seçilmedi'} <i class="fa-solid fa-chevron-down ml-1 text-[9px]"></i></button>
-                        <div class="font-medium text-slate-800">${item.adi}</div>
+                        <div onclick="urunGecmisiniGoster('${item.adi.replace(/'/g, "\\'")}')" class="font-medium text-slate-800 hover:text-emerald-600 cursor-pointer underline decoration-dotted decoration-slate-400" title="Önceki alımları ve tarihleri görmek için tıklayın">${item.adi}</div>
                         <div class="text-xs text-slate-400 font-mono">Barkod: ${item.barkod}</div>
                     </td>
                     <td class="p-3">
