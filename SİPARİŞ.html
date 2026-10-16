@@ -766,33 +766,35 @@
             yokDepoModalKapat();
         }
 
-        async function yoktanSecilenleriArsivle() {
-            const tamamlananlar = yokListesi.filter(item => item.tamamlandi);
-            if(tamamlananlar.length === 0) { alert("Önce yok listesinden ürün işaretleyin!"); return; }
-            for (let item of tamamlananlar) {
-                if (!item.depo || item.depo === 'Seçilmedi') {
-                    alert(`"${item.adi}" için depo seçilmemiş. Lütfen önce depo belirleyin.`);
-                    return;
-                }
-                await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
-                let { id, tamamlandi, ...data } = item;
-                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
-            }
-            alert("İşaretlenen yok listesi ürünleri arşive gönderildi.");
+      async function yoktanSecilenleriArsivle() {
+    const tamamlananlar = yokListesi.filter(item => item.tamamlandi);
+    if(tamamlananlar.length === 0) { alert("Önce yok listesinden ürün işaretleyin!"); return; }
+    const simdi = new Date().toLocaleString('tr-TR'); // Arşive atıldığı anın tarihi
+    for (let item of tamamlananlar) {
+        if (!item.depo || item.depo === 'Seçilmedi') {
+            alert(`"${item.adi}" için depo seçilmemiş. Lütfen önce depo belirleyin.`);
+            return;
         }
+        await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
+        let { id, tamamlandi, ...data } = item;
+        await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), { ...data, eklenmeTarihi: simdi });
+    }
+    alert("İşaretlenen yok listesi ürünleri arşive gönderildi.");
+}
 
-        async function yokTekliArsivle(item) {
-            if (!item.depo || item.depo === 'Seçilmedi') {
-                alert("Lütfen önce üzerine tıklayarak ürüne bir depo atayın!");
-                yokDepoDuzenleModu(item.id);
-                return;
-            }
-            if(confirm(`"${item.adi}" (${item.depo}) geçmiş arşive gönderilsin mi?`)) {
-                await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
-                let { id, tamamlandi, ...data } = item;
-                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
-            }
-        }
+       async function yokTekliArsivle(item) {
+    if (!item.depo || item.depo === 'Seçilmedi') {
+        alert("Lütfen önce üzerine tıklayarak ürüne bir depo atayın!");
+        yokDepoDuzenleModu(item.id);
+        return;
+    }
+    if(confirm(`"${item.adi}" (${item.depo}) geçmiş arşive gönderilsin mi?`)) {
+        const simdi = new Date().toLocaleString('tr-TR');
+        await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
+        let { id, tamamlandi, ...data } = item;
+        await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), { ...data, eklenmeTarihi: simdi });
+    }
+}
 
         async function secilenleriYokListesineTasi() {
             const tamamlananlar = siparisler.filter(item => item.tamamlandi);
@@ -806,15 +808,17 @@
         }
 
         async function secilenleriArsivle() {
-            const tamamlananlar = siparisler.filter(item => item.tamamlandi);
-            if(tamamlananlar.length === 0) { alert("Önce listeden ürün işaretleyin!"); return; }
-            for (let item of tamamlananlar) {
-                await fb.deleteDoc(fb.doc(fb.db, "siparisler", item.id));
-                let { id, tamamlandi, ...data } = item;
-                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
-            }
-            alert("İşaretlenen ürünler geçmiş arşivine taşındı.");
-        }
+    const tamamlananlar = siparisler.filter(item => item.tamamlandi);
+    if(tamamlananlar.length === 0) { alert("Önce listeden ürün işaretleyin!"); return; }
+    const simdi = new Date().toLocaleString('tr-TR'); // Arşive atıldığı anın tarihi
+    for (let item of tamamlananlar) {
+        await fb.deleteDoc(fb.doc(fb.db, "siparisler", item.id));
+        let { id, tamamlandi, ...data } = item;
+        // eklenmeTarihi alanını arşivleme tarihi ile güncelliyoruz
+        await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), { ...data, eklenmeTarihi: simdi });
+    }
+    alert("İşaretlenen ürünler geçmiş arşivine taşındı.");
+}
 
         function sekmeDegistir(sekme) {
             aktifSekme = sekme;
