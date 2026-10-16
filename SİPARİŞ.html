@@ -265,8 +265,16 @@
                     <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2">
                         <i class="fa-solid fa-calendar-days text-emerald-600"></i> Sipariş Geçmişi Takvimi
                     </h2>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <input type="text" id="gecmisAramaInput" onkeyup="gecmisUrunAra()" placeholder="Geçmişte ürün ara..." class="px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-56">
+                    <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                        <!-- Depo Filtreleme Seçeneği Eklendi -->
+                        <select id="gecmisDepoFiltre" onchange="gecmisDepoFiltrele()" class="px-3 py-1.5 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Tümü">Tüm Depolar</option>
+                            <option value="Hedef Ecza Deposu">Hedef Ecza Deposu</option>
+                            <option value="Nevzat Ecza Deposu">Nevzat Ecza Deposu</option>
+                            <option value="Selçuk Ecza Deposu">Selçuk Ecza Deposu</option>
+                            <option value="Seçilmedi">Seçilmedi</option>
+                        </select>
+                        <input type="text" id="gecmisAramaInput" onkeyup="gecmisUrunAra()" placeholder="Geçmişte ürün ara..." class="px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-48">
                     </div>
                 </div>
                 <div id="takvimBaslikBilgi" class="text-sm font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg mb-4"></div>
@@ -668,13 +676,11 @@
             modalBaslik.innerHTML = `<i class="fa-solid.fa-history text-emerald-600 mr-2"></i> "${urunAdi}" - Geçmiş Alımları`;
             icerikDiv.innerHTML = '';
 
-            // Geçmiş siparişler içinde ada göre filtrele
             const eslesenGecmisler = gecmisSiparisler.filter(item => item.adi && item.adi.toLowerCase() === urunAdi.toLowerCase());
 
             if (eslesenGecmisler.length === 0) {
                 icerikDiv.innerHTML = `<div class="text-center py-6 text-slate-400"><p>Bu ürüne ait geçmiş sipariş arşivi bulunamadı.</p></div>`;
             } else {
-                // Tarihe göre yeniden eskiye sıralama
                 eslesenGecmisler.sort((a, b) => (b.eklenmeTarihi || '').localeCompare(a.eklenmeTarihi || ''));
 
                 eslesenGecmisler.forEach(item => {
@@ -766,35 +772,33 @@
             yokDepoModalKapat();
         }
 
-      async function yoktanSecilenleriArsivle() {
-    const tamamlananlar = yokListesi.filter(item => item.tamamlandi);
-    if(tamamlananlar.length === 0) { alert("Önce yok listesinden ürün işaretleyin!"); return; }
-    const simdi = new Date().toLocaleString('tr-TR'); // Arşive atıldığı anın tarihi
-    for (let item of tamamlananlar) {
-        if (!item.depo || item.depo === 'Seçilmedi') {
-            alert(`"${item.adi}" için depo seçilmemiş. Lütfen önce depo belirleyin.`);
-            return;
+        async function yoktanSecilenleriArsivle() {
+            const tamamlananlar = yokListesi.filter(item => item.tamamlandi);
+            if(tamamlananlar.length === 0) { alert("Önce yok listesinden ürün işaretleyin!"); return; }
+            for (let item of tamamlananlar) {
+                if (!item.depo || item.depo === 'Seçilmedi') {
+                    alert(`"${item.adi}" için depo seçilmemiş. Lütfen önce depo belirleyin.`);
+                    return;
+                }
+                await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
+                let { id, tamamlandi, ...data } = item;
+                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
+            }
+            alert("İşaretlenen yok listesi ürünleri arşive gönderildi.");
         }
-        await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
-        let { id, tamamlandi, ...data } = item;
-        await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), { ...data, eklenmeTarihi: simdi });
-    }
-    alert("İşaretlenen yok listesi ürünleri arşive gönderildi.");
-}
 
-       async function yokTekliArsivle(item) {
-    if (!item.depo || item.depo === 'Seçilmedi') {
-        alert("Lütfen önce üzerine tıklayarak ürüne bir depo atayın!");
-        yokDepoDuzenleModu(item.id);
-        return;
-    }
-    if(confirm(`"${item.adi}" (${item.depo}) geçmiş arşive gönderilsin mi?`)) {
-        const simdi = new Date().toLocaleString('tr-TR');
-        await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
-        let { id, tamamlandi, ...data } = item;
-        await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), { ...data, eklenmeTarihi: simdi });
-    }
-}
+        async function yokTekliArsivle(item) {
+            if (!item.depo || item.depo === 'Seçilmedi') {
+                alert("Lütfen önce üzerine tıklayarak ürüne bir depo atayın!");
+                yokDepoDuzenleModu(item.id);
+                return;
+            }
+            if(confirm(`"${item.adi}" (${item.depo}) geçmiş arşive gönderilsin mi?`)) {
+                await fb.deleteDoc(fb.doc(fb.db, "yokListesi", item.id));
+                let { id, tamamlandi, ...data } = item;
+                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
+            }
+        }
 
         async function secilenleriYokListesineTasi() {
             const tamamlananlar = siparisler.filter(item => item.tamamlandi);
@@ -808,17 +812,15 @@
         }
 
         async function secilenleriArsivle() {
-    const tamamlananlar = siparisler.filter(item => item.tamamlandi);
-    if(tamamlananlar.length === 0) { alert("Önce listeden ürün işaretleyin!"); return; }
-    const simdi = new Date().toLocaleString('tr-TR'); // Arşive atıldığı anın tarihi
-    for (let item of tamamlananlar) {
-        await fb.deleteDoc(fb.doc(fb.db, "siparisler", item.id));
-        let { id, tamamlandi, ...data } = item;
-        // eklenmeTarihi alanını arşivleme tarihi ile güncelliyoruz
-        await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), { ...data, eklenmeTarihi: simdi });
-    }
-    alert("İşaretlenen ürünler geçmiş arşivine taşındı.");
-}
+            const tamamlananlar = siparisler.filter(item => item.tamamlandi);
+            if(tamamlananlar.length === 0) { alert("Önce listeden ürün işaretleyin!"); return; }
+            for (let item of tamamlananlar) {
+                await fb.deleteDoc(fb.doc(fb.db, "siparisler", item.id));
+                let { id, tamamlandi, ...data } = item;
+                await fb.addDoc(fb.collection(fb.db, "gecmisSiparisler"), data);
+            }
+            alert("İşaretlenen ürünler geçmiş arşivine taşındı.");
+        }
 
         function sekmeDegistir(sekme) {
             aktifSekme = sekme;
@@ -959,10 +961,18 @@
             });
         }
 
-        // --- GERÇEK GÖRSEL TAKVİM SİSTEMİ ---
+        // --- GERÇEK GÖRSEL TAKVİM SİSTEMİ (DEPO FİLTRE DESTEKLİ) ---
         function gecmisiGoster() {
             const bosMesaj = document.getElementById('bosGecmisMesaj');
-            if(gecmisSiparisler.length === 0) { 
+            const secilenDepoFiltre = document.getElementById('gecmisDepoFiltre').value;
+
+            // Seçilen depoya göre geçmiş siparişleri filtrele
+            let filtrelenmisGecmisler = gecmisSiparisler;
+            if (secilenDepoFiltre !== 'Tümü') {
+                filtrelenmisGecmisler = gecmisSiparisler.filter(item => (item.depo || 'Seçilmedi') === secilenDepoFiltre);
+            }
+
+            if(filtrelenmisGecmisler.length === 0) { 
                 bosMesaj.classList.remove('hidden'); 
                 document.getElementById('takvimGunleriGrid').innerHTML = '';
                 document.getElementById('takvimGunKapsayici').innerHTML = '';
@@ -972,7 +982,7 @@
             bosMesaj.classList.add('hidden');
 
             const siparisGunleriMap = {};
-            gecmisSiparisler.forEach(item => {
+            filtrelenmisGecmisler.forEach(item => {
                 let tarihGun = (item.eklenmeTarihi || '').split(' ')[0];
                 if(tarihGun) {
                     siparisGunleriMap[tarihGun] = (siparisGunleriMap[tarihGun] || 0) + 1;
@@ -1029,7 +1039,7 @@
                     btn.onclick = () => {
                         secilenTakvimGunu = tarihFormat;
                         document.getElementById('gecmisAramaInput').value = '';
-                        gecmisiGoster();
+                        secilenGunuGoster();
                     };
                 } else {
                     btn.disabled = true;
@@ -1051,8 +1061,15 @@
             gecmisiGoster();
         }
 
+        function gecmisDepoFiltrele() {
+            secilenTakvimGunu = null;
+            document.getElementById('gecmisAramaInput').value = '';
+            gecmisiGoster();
+        }
+
         function gecmisUrunAra() {
             const aranan = document.getElementById('gecmisAramaInput').value.toLowerCase().trim();
+            const secilenDepoFiltre = document.getElementById('gecmisDepoFiltre').value;
             const kapsayici = document.getElementById('takvimGunKapsayici');
             const bilgiKutusu = document.getElementById('takvimBaslikBilgi');
             const takvimBox = document.getElementById('takvimKapsayiciDiv');
@@ -1064,12 +1081,13 @@
             }
 
             takvimBox.style.display = 'none';
-            bilgiKutusu.innerHTML = `<i class="fa-solid.fa-search mr-1"></i> Arama Sonucu: "${aranan}"`;
+            bilgiKutusu.innerHTML = `<i class="fa-solid.fa-search mr-1"></i> Arama Sonucu: "${aranan}" ${secilenDepoFiltre !== 'Tümü' ? '('+secilenDepoFiltre+')' : ''}`;
 
-            const bulunanlar = gecmisSiparisler.filter(item => 
-                (item.adi && item.adi.toLowerCase().includes(aranan)) || 
-                (item.barkod && item.barkod.toLowerCase().includes(aranan))
-            );
+            const bulunanlar = gecmisSiparisler.filter(item => {
+                const depoUyuyor = (secilenDepoFiltre === 'Tümü' || (item.depo || 'Seçilmedi') === secilenDepoFiltre);
+                const metinUyuyor = (item.adi && item.adi.toLowerCase().includes(aranan)) || (item.barkod && item.barkod.toLowerCase().includes(aranan));
+                return depoUyuyor && metinUyuyor;
+            });
 
             if (bulunanlar.length === 0) {
                 kapsayici.innerHTML = `<div class="text-center py-8 text-slate-400"><p>Aranan kriterlere uygun geçmiş sipariş bulunamadı.</p></div>`;
@@ -1130,6 +1148,8 @@
             const kapsayici = document.getElementById('takvimGunKapsayici');
             const bilgiKutusu = document.getElementById('takvimBaslikBilgi');
             const takvimBox = document.getElementById('takvimKapsayiciDiv');
+            const secilenDepoFiltre = document.getElementById('gecmisDepoFiltre').value;
+
             takvimBox.style.display = 'block';
             kapsayici.innerHTML = '';
             
@@ -1139,9 +1159,18 @@
                 return;
             }
 
-            bilgiKutusu.innerHTML = `<i class="fa-solid fa-calendar-check mr-1"></i> Seçilen Tarih: ${secilenTakvimGunu}`;
+            bilgiKutusu.innerHTML = `<i class="fa-solid fa-calendar-check mr-1"></i> Seçilen Tarih: ${secilenTakvimGunu} ${secilenDepoFiltre !== 'Tümü' ? '('+secilenDepoFiltre+')' : ''}`;
 
-            const gunlukListe = gecmisSiparisler.filter(item => (item.eklenmeTarihi || '').startsWith(secilenTakvimGunu));
+            const gunlukListe = gecmisSiparisler.filter(item => {
+                const tarihUyuyor = (item.eklenmeTarihi || '').startsWith(secilenTakvimGunu);
+                const depoUyuyor = (secilenDepoFiltre === 'Tümü' || (item.depo || 'Seçilmedi') === secilenDepoFiltre);
+                return tarihUyuyor && depoUyuyor;
+            });
+
+            if (gunlukListe.length === 0) {
+                kapsayici.innerHTML = `<div class="text-center py-8 text-slate-400"><p>Bu tarihte seçilen depoya ait geçmiş sipariş bulunmuyor.</p></div>`;
+                return;
+            }
 
             let html = `
                 <div class="border rounded-xl bg-white p-4 shadow-sm">
@@ -1263,7 +1292,7 @@
             if (itriyatListesi.length === 0) { alert("Kopyalanacak itriyat yok!"); return; }
             let metin = "İTRİYAT LİSTESİ:\n";
             itriyatListesi.forEach((i, idx) => { metin += `${idx+1}. ${i.adi} - ${i.miktari} ${i.birimi}\n`; });
-            navigator.clipboard.writeText(metin).then(() => alert("Kopyalandı!"));
+            navigator.clipboard.writeText(netin).then(() => alert("Kopyalandı!"));
         }
         function filtrele() {
             const val = document.getElementById('aramaInput').value.toLowerCase();
